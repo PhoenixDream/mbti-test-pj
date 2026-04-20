@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>维度交响：AI人格解码</title>
+    <!-- 引入 html2canvas 用于生成截图 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --bg-color: #f4f7f6;
+        }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1c29, #272a3f);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        .container {
+            width: 90%;
+            max-width: 500px;
+            margin: 40px 0;
+        }
+        /* 分析卡片，用于截图 */
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            color: #333;
+            padding: 35px 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            color: transparent;
+            font-size: 24px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        .form-group { margin-bottom: 18px; }
+        label { font-size: 14px; font-weight: bold; color: #555; display: block; margin-bottom: 8px;}
+        select {
+            width: 100%; padding: 14px;
+            border: 2px solid #eaeaea; border-radius: 12px; font-size: 16px;
+            background-color: #fcfcfc;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+        select:focus { outline: none; border-color: var(--secondary-color); }
+        button.btn-main {
+            width: 100%; padding: 16px; margin-top: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; border: none; border-radius: 12px;
+            font-size: 18px; font-weight: bold; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button.btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
+        }
+        /* 加载动画 */
+        #loading {
+            display: none; text-align: center; margin-top: 20px;
+            color: var(--secondary-color); font-weight: bold; line-height: 1.6;
+        }
+        .spinner {
+            font-size: 30px; margin-bottom: 10px;
+            display: inline-block; animation: spin 2s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* 结果展示区 */
+        #result-box { display: none; margin-top: 10px; }
+        .ai-text {
+            white-space: pre-wrap; /* 完美保留AI生成的换行 */
+            line-height: 1.7;
+            font-size: 15.5px;
+            color: #2c3e50;
+        }
+        .ai-text strong { color: var(--primary-color); }
+
+        /* 截图底部水印 */
+        .watermark {
+            display: none; text-align: center; font-size: 13px; color: #aaa;
+            margin-top: 30px; border-top: 1px dashed #eee; padding-top: 15px;
+        }
+        .watermark span { font-weight: bold; color: var(--secondary-color); }
+
+        /* 外部按钮区 */
+        #share-action { display: none; margin-top: 20px; }
+        button.btn-share {
+            width: 100%; padding: 14px; margin-bottom: 12px;
+            background: #fff; color: var(--primary-color);
+            border: 2px solid var(--primary-color); border-radius: 12px;
+            font-size: 16px; cursor: pointer; font-weight: bold;
+            transition: all 0.2s;
+        }
+        button.btn-share:hover { background: var(--primary-color); color: #fff; }
+        button.btn-retry {
+            width: 100%; padding: 14px;
+            background: transparent; color: #a0aab5;
+            border: 2px solid #a0aab5; border-radius: 12px;
+            font-size: 16px; cursor: pointer; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card" id="capture-area">
+        <h1>🔮 维度交响 · 人格解码</h1>
+
+        <!-- 表单区 -->
+        <div id="form-area">
+            <div class="form-group">
+                <label>你的 MBTI 迈尔斯布里格斯类型</label>
+                <select id="mbti">
+                    <optgroup label="分析家 (理性/直觉)">
+                        <option value="INTJ">INTJ (建筑师)</option>
+                        <option value="INTP">INTP (逻辑学家)</option>
+                        <option value="ENTJ">ENTJ (指挥官)</option>
+                        <option value="ENTP">ENTP (辩论家)</option>
+                    </optgroup>
+                    <optgroup label="外交家 (感性/直觉)">
+                        <option value="INFJ">INFJ (提倡者)</option>
+                        <option value="INFP">INFP (调停者)</option>
+                        <option value="ENFJ">ENFJ (主人公)</option>
+                        <option value="ENFP">ENFP (竞选者)</option>
+                    </optgroup>
+                    <optgroup label="守护者 (理性/实感)">
+                        <option value="ISTJ">ISTJ (物流师)</option>
+                        <option value="ISFJ">ISFJ (守卫者)</option>
+                        <option value="ESTJ">ESTJ (总经理)</option>
+                        <option value="ESFJ">ESFJ (执政官)</option>
+                    </optgroup>
+                    <optgroup label="探险家 (感性/实感)">
+                        <option value="ISTP">ISTP (鉴赏家)</option>
+                        <option value="ISFP">ISFP (探险家)</option>
+                        <option value="ESTP">ESTP (企业家)</option>
+                        <option value="ESFP">ESFP (表演者)</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>你的 星座</label>
+                <select id="zodiac">
+                    <optgroup label="火象星座">
+                        <option value="白羊座">白羊座 (Aries)</option>
+                        <option value="狮子座">狮子座 (Leo)</option>
+                        <option value="射手座">射手座 (Sagittarius)</option>
+                    </optgroup>
+                    <optgroup label="土象星座">
+                        <option value="金牛座">金牛座 (Taurus)</option>
+                        <option value="处女座">处女座 (Virgo)</option>
+                        <option value="摩羯座">摩羯座 (Capricorn)</option>
+                    </optgroup>
+                    <optgroup label="风象星座">
+                        <option value="双子座">双子座 (Gemini)</option>
+                        <option value="天秤座">天秤座 (Libra)</option>
+                        <option value="水瓶座">水瓶座 (Aquarius)</option>
+                    </optgroup>
+                    <optgroup label="水象星座">
+                        <option value="巨蟹座">巨蟹座 (Cancer)</option>
+                        <option value="天蝎座">天蝎座 (Scorpio)</option>
+                        <option value="双鱼座">双鱼座 (Pisces)</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>你的 血型</label>
+                <select id="blood">
+                    <option value="A">A 型</option>
+                    <option value="B">B 型</option>
+                    <option value="O">O 型</option>
+                    <option value="AB">AB 型</option>
+                </select>
+            </div>
+            <button class="btn-main" onclick="startAnalysis()">连接宇宙意识，生成画像 ✨</button>
+        </div>
+
+        <!-- 动画区 -->
+        <div id="loading">
+            <div class="spinner">🌌</div><br>
+            AI 大脑正在高速运转...<br>
+            <span style="font-size: 13px; color: #888; font-weight: normal;">正在解析星盘、人格功能轴与血型图谱</span>
+        </div>
+
+        <!-- 结果区 -->
+        <div id="result-box">
+            <div class="ai-text" id="ai-content"></div>
+            <div class="watermark" id="watermark">
+                测试来自 <span>综合人格解码器</span><br>截图去发朋友圈吧！
+            </div>
+        </div>
+    </div>
+
+    <!-- 独立于截图区域的按钮 -->
+    <div id="share-action">
+        <button class="btn-share" onclick="generatePoster()">📸 保存为精美海报</button>
+        <button class="btn-retry" onclick="location.reload()">🔄 重新测一次</button>
+    </div>
+</div>
+
+<script>
+    // 你的 Cloudflare Worker API 链接
+    const WORKER_URL = "https://mbti-api.jackwilsonbuddy.workers.dev";
+
+    // 页面加载恢复上次数据
+    window.onload = () => {
+        if(localStorage.getItem('mbti')) document.getElementById('mbti').value = localStorage.getItem('mbti');
+        if(localStorage.getItem('zodiac')) document.getElementById('zodiac').value = localStorage.getItem('zodiac');
+        if(localStorage.getItem('blood')) document.getElementById('blood').value = localStorage.getItem('blood');
+    }
+
+    async function startAnalysis() {
+        const mbti = document.getElementById('mbti').value;
+        const zodiac = document.getElementById('zodiac').value;
+        const blood = document.getElementById('blood').value;
+
+        // 存入本地
+        localStorage.setItem('mbti', mbti);
+        localStorage.setItem('zodiac', zodiac);
+        localStorage.setItem('blood', blood);
+
+        // UI 切换
+        document.getElementById('form-area').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+
+        try {
+            // 向云函数发起请求
+            const response = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mbti, zodiac, blood })
+            });
+
+            if (!response.ok) throw new Error('网络请求失败');
+            const data = await response.json();
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('result-box').style.display = 'block';
+            document.getElementById('share-action').style.display = 'block';
+
+            // 打字机特效显示结果
+            typeWriter(data.result, 'ai-content', 25);
+
+        } catch (err) {
+            alert('AI 大脑好像拥堵了，请稍后再试！');
+            location.reload();
+        }
+    }
+
+    // 打字机特效函数
+    function typeWriter(text, elementId, speed) {
+        let i = 0;
+        document.getElementById(elementId).innerHTML = "";
+        function type() {
+            if (i < text.length) {
+                // 如果是换行符，转换为 <br>
+                let char = text.charAt(i);
+                if (char === '\n') {
+                    document.getElementById(elementId).innerHTML += '<br>';
+                } else {
+                    document.getElementById(elementId).innerHTML += char;
+                }
+                i++;
+                // 稍微加入一点随机延迟，让打字效果更真实
+                let currentSpeed = speed + (Math.random() * 20 - 10);
+                setTimeout(type, currentSpeed);
+            } else {
+                // 打字结束后显示水印
+                document.getElementById('watermark').style.display = 'block';
+            }
+        }
+        type();
+    }
+
+    // 一键生成海报
+    function generatePoster() {
+        const captureArea = document.getElementById('capture-area');
+        // 保存原有的 box-shadow，防止截图中出现奇怪的黑边
+        const originalBoxShadow = captureArea.style.boxShadow;
+        captureArea.style.boxShadow = 'none';
+
+        html2canvas(captureArea, {
+            scale: 2, // 提高清晰度
+            backgroundColor: "#ffffff", // 设置为白底，防止部分机型透明底发黑
+            useCORS: true
+        }).then(canvas => {
+            // 恢复阴影
+            captureArea.style.boxShadow = originalBoxShadow;
+
+            // 将 canvas 转为图片 URL
+            const imgUrl = canvas.toDataURL("image/jpeg", 0.9);
+
+            // 创建一个 a 标签触发下载
+            const link = document.createElement('a');
+            const timeStr = new Date().getTime();
+            link.download = `我的专属人格画像_${timeStr}.jpg`;
+            link.href = imgUrl;
+            link.click();
+        });
+    }
+</script>
+</body>
+</html>
