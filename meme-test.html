@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>职场动物进化测试</title>
+    <style>
+        :root {
+            --bg: #f7fbff;
+            --bg-2: #eef6ff;
+            --panel: rgba(255, 255, 255, 0.84);
+            --panel-border: rgba(148, 163, 184, 0.14);
+            --text: #243244;
+            --muted: #6c7b8c;
+            --accent: #6aa9ff;
+            --accent-2: #7edcc1;
+            --accent-3: #8d92ff;
+            --danger: #ef6b81;
+            --shadow: 0 14px 36px rgba(114, 144, 178, 0.14);
+            --shadow-soft: 0 8px 22px rgba(114, 144, 178, 0.08);
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-md: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+            background:
+                    radial-gradient(circle at 0% 0%, rgba(126, 220, 193, 0.18), transparent 30%),
+                    radial-gradient(circle at 100% 10%, rgba(106, 169, 255, 0.18), transparent 30%),
+                    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+            min-height: 100vh;
+            line-height: 1.65;
+        }
+
+        .container {
+            width: min(940px, calc(100% - 28px));
+            margin: 28px auto 72px;
+        }
+
+        .hero,
+        .card,
+        .result-card {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 32px 28px;
+            margin-bottom: 20px;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: -64px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(106, 169, 255, 0.18), transparent 70%);
+            pointer-events: none;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(30px, 4vw, 42px);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            margin: 0;
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .hero-meta {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.66);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .card {
+            padding: 22px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            margin: 0 0 6px;
+            font-size: 21px;
+            letter-spacing: -0.01em;
+        }
+
+        .section-desc {
+            margin: 0 0 16px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .question {
+            padding: 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.64);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 12px;
+        }
+
+        .question-title {
+            font-size: 15px;
+            font-weight: 650;
+            color: #243243;
+            margin-bottom: 12px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .option input {
+            display: none;
+        }
+
+        .option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 64px;
+            height: 64px;
+            padding: 8px;
+            text-align: center;
+            border-radius: 16px;
+            cursor: pointer;
+            user-select: none;
+            background: #f9fcff;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+            font-size: 12px;
+            line-height: 1.25;
+            color: var(--muted);
+            font-weight: 700;
+            word-break: break-word;
+            overflow: hidden;
+        }
+
+        .option label:hover {
+            transform: translateY(-1px);
+            border-color: rgba(106, 169, 255, 0.45);
+            box-shadow: 0 8px 20px rgba(106, 169, 255, 0.12);
+            color: var(--text);
+            background: #ffffff;
+        }
+
+        .option input:checked + label {
+            background: linear-gradient(135deg, rgba(106, 169, 255, 0.95), rgba(126, 220, 193, 0.95));
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 12px 26px rgba(106, 169, 255, 0.22);
+            transform: translateY(-1px);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 999px;
+            padding: 13px 18px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+
+        .primary {
+            background: linear-gradient(135deg, #6aa9ff, #7edcc1);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(106, 169, 255, 0.22);
+        }
+
+        .secondary {
+            background: rgba(255, 255, 255, 0.78);
+            color: var(--text);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            opacity: 0.98;
+        }
+
+        .warning {
+            margin-top: 14px;
+            color: var(--danger);
+            font-size: 14px;
+            display: none;
+        }
+
+        .result-card {
+            display: none;
+            padding: 26px;
+            margin-top: 24px;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-top {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .animal-panel,
+        .quote-panel,
+        .metric,
+        .share-box,
+        .type-card {
+            background: rgba(255, 255, 255, 0.68);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: var(--shadow-soft);
+            border-radius: 20px;
+        }
+
+        .animal-panel {
+            padding: 22px;
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            background: rgba(126, 220, 193, 0.18);
+            color: #2b7f6d;
+            border: 1px solid rgba(126, 220, 193, 0.32);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .animal-line {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 8px;
+        }
+
+        .animal-emoji {
+            font-size: 48px;
+            line-height: 1;
+        }
+
+        .animal-name {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 36px);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .animal-tag {
+            color: var(--muted);
+            font-size: 14px;
+            margin: 8px 0 0;
+        }
+
+        .result-summary {
+            color: var(--muted);
+            margin: 14px 0 0;
+            font-size: 15px;
+        }
+
+        .quote-panel {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(106, 169, 255, 0.1), rgba(141, 146, 255, 0.08));
+        }
+
+        .quote-title {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .quote-text {
+            font-size: 20px;
+            line-height: 1.5;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: #253446;
+            margin: 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .metric {
+            padding: 16px;
+        }
+
+        .metric-name {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #233244;
+        }
+
+        .bar {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.16);
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #6aa9ff, #7edcc1);
+            width: 0;
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .type-card {
+            padding: 16px;
+        }
+
+        .type-card h3 {
+            margin: 0 0 8px;
+            font-size: 15px;
+        }
+
+        .type-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .share-box {
+            margin-top: 16px;
+            padding: 16px;
+        }
+
+        .share-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .share-title {
+            font-size: 14px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 108px;
+            resize: vertical;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            outline: none;
+            border-radius: 16px;
+            padding: 14px;
+            font: inherit;
+            line-height: 1.7;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        footer {
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 860px) {
+            .result-top,
+            .type-grid,
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .container {
+                width: min(100%, calc(100% - 16px));
+                margin-top: 16px;
+            }
+
+            .hero,
+            .card,
+            .result-card {
+                border-radius: 20px;
+            }
+
+            .hero {
+                padding: 24px 18px;
+            }
+
+            .card,
+            .result-card {
+                padding: 18px;
+            }
+
+            .question {
+                padding: 14px;
+            }
+
+            .options {
+                gap: 8px;
+            }
+
+            .option label {
+                min-height: 58px;
+                height: 58px;
+                font-size: 11px;
+                padding: 6px;
+                border-radius: 14px;
+            }
+
+            .animal-emoji {
+                font-size: 42px;
+            }
+
+            .quote-text {
+                font-size: 18px;
+            }
+
+            .share-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <section class="hero">
+        <h1>职场动物进化测试</h1>
+        <p class="subtitle">
+            不是那种一本正经的职业性格题，而是更接近日常打工体验的版本。
+            测完你会拿到：你的职场动物、牛马指数、舒适度等级，以及一句比较像人话的点评。
+        </p>
+        <div class="hero-meta">
+            <span class="chip">🐾 21 题</span>
+            <span class="chip">🌿 含舒适度等级</span>
+            <span class="chip">✨ 有隐藏款</span>
+            <span class="chip">😂 仅供娱乐但挺真实</span>
+        </div>
+    </section>
+
+    <form id="testForm"></form>
+
+    <div class="card">
+        <div class="actions">
+            <button type="button" class="primary" id="submitBtn">生成我的职场动物</button>
+            <button type="button" class="secondary" id="resetBtn">重新测试</button>
+        </div>
+        <div class="warning" id="warning">还有题没做完，先把所有选项都点一遍吧。</div>
+    </div>
+
+    <section class="result-card" id="resultCard">
+        <div class="result-top">
+            <div class="animal-panel">
+                <div class="result-badge" id="resultBadge">测试完成</div>
+                <div class="animal-line">
+                    <div class="animal-emoji" id="animalEmoji">🐧</div>
+                    <div>
+                        <h2 class="animal-name" id="animalName">企鹅</h2>
+                        <p class="animal-tag" id="animalTag">表面正常运行型</p>
+                    </div>
+                </div>
+                <p class="result-summary" id="resultSummary"></p>
+            </div>
+            <div class="quote-panel">
+                <div class="quote-title">一句话</div>
+                <p class="quote-text" id="quoteText"></p>
+            </div>
+        </div>
+
+        <div class="grid" id="metricsGrid"></div>
+        <div class="type-grid" id="typeGrid"></div>
+
+        <div class="share-box">
+            <div class="share-header">
+                <h3 class="share-title">可直接复制的结果文案</h3>
+                <button type="button" class="secondary" id="copyBtn">复制文案</button>
+            </div>
+            <textarea id="shareText" readonly></textarea>
+        </div>
+    </section>
+
+    <footer>
+        职场动物进化测试 · 仅供娱乐
+    </footer>
+</div>
+
+<script>
+    const sections = [
+        {
+            key: 'obedience',
+            title: '① 服从度',
+            desc: '不是同不同意，而是你会不会先配合。',
+            questions: [
+                '有些任务我其实觉得不合理，但还是会先做了再说。',
+                '别人说“那这个你来吧”，我很少第一时间拒绝。',
+                '有时候我不是同意，只是不想再解释。'
+            ]
+        },
+        {
+            key: 'overthinking',
+            title: '② 内耗度',
+            desc: '有些疲惫，不一定发生在工位上。',
+            questions: [
+                '下班之后，脑子还在 replay 今天的对话。',
+                '有时候一句普通的话，我会反复想它有没有别的意思。',
+                '明明已经结束的事情，还会在脑子里“再来一遍”。'
+            ]
+        },
+        {
+            key: 'blame',
+            title: '③ 背锅体质',
+            desc: '有些责任，好像会自动贴到你身上。',
+            questions: [
+                '有些事情，好像自然就变成我在负责。',
+                '明明不是我的问题，但最后需要我来收尾。',
+                '我有点习惯“算了我来吧”。'
+            ]
+        },
+        {
+            key: 'masking',
+            title: '④ 社交表演',
+            desc: '你有没有一个“上班用人格”？',
+            questions: [
+                '有时候我会切换成“上班用人格”。',
+                '即使没什么好说的，也会说点什么让气氛不太尴尬。',
+                '我大概知道自己什么时候在“营业”。'
+            ]
+        },
+        {
+            key: 'energy',
+            title: '⑤ 精力状态',
+            desc: '有些累，不是身体，是那种说不太清的。',
+            questions: [
+                '有时候下班之后，只想安静待着。',
+                '周末如果没有安排，我更倾向于恢复而不是社交。',
+                '有些累不是身体，是那种说不太清的。'
+            ]
+        },
+        {
+            key: 'selfRetain',
+            title: '⑥ 自我保留',
+            desc: '你还剩多少“自己”的部分？',
+            questions: [
+                '有些事情，我还是会坚持自己的想法。',
+                '即使环境这样，我也不会完全变成那样的人。',
+                '我能感觉到“自己”和“工作中的自己”是有区别的。'
+            ]
+        },
+        {
+            key: 'comfort',
+            title: '⑦ 舒适度',
+            desc: '不是爽不爽，而是还能不能待下去。',
+            questions: [
+                '我大致知道自己每天在做什么，也不算完全被动。',
+                '虽然有不爽的地方，但整体还能接受。',
+                '有时候也会觉得，这样过也还行。'
+            ]
+        }
+    ];
+
+    const labels = [
+        { value: 1, text: '完全不像' },
+        { value: 2, text: '不太像' },
+        { value: 3, text: '一般' },
+        { value: 4, text: '比较像' },
+        { value: 5, text: '非常像我' }
+    ];
+
+    const form = document.getElementById('testForm');
+    const warning = document.getElementById('warning');
+    const resultCard = document.getElementById('resultCard');
+    const metricsGrid = document.getElementById('metricsGrid');
+    const typeGrid = document.getElementById('typeGrid');
+    const animalEmoji = document.getElementById('animalEmoji');
+    const animalName = document.getElementById('animalName');
+    const animalTag = document.getElementById('animalTag');
+    const resultSummary = document.getElementById('resultSummary');
+    const quoteText = document.getElementById('quoteText');
+    const resultBadge = document.getElementById('resultBadge');
+    const shareText = document.getElementById('shareText');
+
+    function buildForm() {
+        let qIndex = 1;
+
+        sections.forEach((section) => {
+            const sectionEl = document.createElement('section');
+            sectionEl.className = 'card';
+            sectionEl.innerHTML = `
+          <h2 class="section-title">${section.title}</h2>
+          <p class="section-desc">${section.desc}</p>
+        `;
+
+            section.questions.forEach((q) => {
+                const qName = `q${qIndex}`;
+                const qEl = document.createElement('div');
+                qEl.className = 'question';
+
+                const optionsHtml = labels.map((label) => `
+            <div class="option">
+              <input type="radio" id="${qName}_${label.value}" name="${qName}" value="${label.value}">
+              <label for="${qName}_${label.value}">${label.text}</label>
+            </div>
+          `).join('');
+
+                qEl.innerHTML = `
+            <div class="question-title">${qIndex}. ${q}</div>
+            <div class="options">${optionsHtml}</div>
+          `;
+
+                sectionEl.appendChild(qEl);
+                qIndex += 1;
+            });
+
+            form.appendChild(sectionEl);
+        });
+    }
+
+    function getAnswers() {
+        const answers = [];
+        for (let i = 1; i <= 21; i += 1) {
+            const checked = document.querySelector(`input[name="q${i}"]:checked`);
+            if (!checked) return null;
+            answers.push(Number(checked.value));
+        }
+        return answers;
+    }
+
+    function sum(arr) {
+        return arr.reduce((a, b) => a + b, 0);
+    }
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    function comfortLevel(score) {
+        if (score <= 6) return '🔥 压迫型';
+        if (score <= 10) return '😐 勉强适应';
+        if (score <= 13) return '🙂 相对舒适';
+        return '🌿 理想状态';
+    }
+
+    function scoreToLabel(score, low, mid, high) {
+        if (score <= 6) return low;
+        if (score >= 12) return high;
+        return mid;
+    }
+
+    function calculateResult(answers) {
+        const obedience = sum(answers.slice(0, 3));
+        const overthinking = sum(answers.slice(3, 6));
+        const blame = sum(answers.slice(6, 9));
+        const masking = sum(answers.slice(9, 12));
+        const energy = sum(answers.slice(12, 15));
+        const selfRetain = sum(answers.slice(15, 18));
+        const comfort = sum(answers.slice(18, 21));
+
+        const cowRaw = obedience * 0.24 + overthinking * 0.18 + blame * 0.2 + masking * 0.12 + energy * 0.14 + (15 - selfRetain) * 0.12;
+        const cowPercent = Math.round((cowRaw / 15) * 100);
+
+        const comfortPercent = Math.round((comfort / 15) * 100);
+        const selfPercent = Math.round((selfRetain / 15) * 100);
+        const overthinkingPercent = Math.round((overthinking / 15) * 100);
+        const obediencePercent = Math.round((obedience / 15) * 100);
+        const fatiguePercent = Math.round((energy / 15) * 100);
+
+        return {
+            obedience,
+            overthinking,
+            blame,
+            masking,
+            energy,
+            selfRetain,
+            comfort,
+            cowPercent,
+            comfortPercent,
+            selfPercent,
+            overthinkingPercent,
+            obediencePercent,
+            fatiguePercent,
+            comfortText: comfortLevel(comfort),
+            obedienceType: scoreToLabel(obedience, '不好安排', '看情况配合', '很容易先配合'),
+            overthinkingType: scoreToLabel(overthinking, '比较放得下', '偶尔内耗', '脑内后台常驻'),
+            selfType: scoreToLabel(selfRetain, '容易被环境带着走', '保留一部分自己', '自我边界还在')
+        };
+    }
+
+    function pickAnimal(result) {
+        const { cowPercent, comfort, selfRetain, obedience, overthinking, blame, masking, energy } = result;
+
+        const hiddenAllMid = [obedience, overthinking, blame, masking, energy, selfRetain, comfort].every((n) => n >= 7 && n <= 11);
+        if (cowPercent >= 90 && selfRetain <= 5) {
+            return {
+                emoji: '🧟',
+                name: '工具人',
+                tag: '隐藏款 · 自动执行型',
+                summary: '你已经进入“有事直接派给我”的状态，很多事情甚至不需要你先同意。',
+                quote: '你不是在上班，你是在被系统调用。'
+            };
+        }
+
+        if (cowPercent >= 78 && comfort >= 13 && selfRetain >= 10) {
+            return {
+                emoji: '👑',
+                name: '打工皇帝',
+                tag: '隐藏款 · 掌控局面型',
+                summary: '你工作强度不低，但你并没有被工作吞掉，反而有一种“这局我能控”的感觉。',
+                quote: '你不是被工作推着走，你是在安排工作怎么走。'
+            };
+        }
+
+        if (cowPercent <= 32 && comfort >= 13 && overthinking <= 7) {
+            return {
+                emoji: '🌿',
+                name: '半退休人类',
+                tag: '隐藏款 · 松弛运行型',
+                summary: '你似乎已经学会在系统里保持松弛，工作归工作，生活归生活。',
+                quote: '你还在上班，但灵魂已经先下班了。'
+            };
+        }
+
+        if (hiddenAllMid) {
+            return {
+                emoji: '🌀',
+                name: '不可分类体',
+                tag: '隐藏款 · 系统识别失败',
+                summary: '你既不是典型社畜，也不是明显反骨，像一个总能恰好卡在中间值的神秘变量。',
+                quote: '系统试图理解你，但最终决定先放过自己。'
+            };
+        }
+
+        if (cowPercent >= 78 && comfort <= 7) {
+            return {
+                emoji: '🐄',
+                name: '老黄牛',
+                tag: '高负荷忍耐型',
+                summary: '你会扛、会做、也不太好意思甩手，但舒服这件事往往不在你的优先级里。',
+                quote: '你不是没意见，你只是常常来不及表达。'
+            };
+        }
+
+        if (cowPercent >= 74 && comfort >= 11) {
+            return {
+                emoji: '🐎',
+                name: '奔马',
+                tag: '高能输出型',
+                summary: '你挺忙，也挺能跑，但这种忙并不完全让你窒息，甚至有一点自己在推进什么的感觉。',
+                quote: '你很累，但你不是被拖着累。'
+            };
+        }
+
+        if (obedience >= 12 && cowPercent >= 70) {
+            return {
+                emoji: '🐕',
+                name: '社畜犬',
+                tag: '忠诚配合型',
+                summary: '你很容易成为那个“交给你我放心”的人，问题是事情也会越交越多。',
+                quote: '你不是最好说话，只是不太习惯把话说硬。'
+            };
+        }
+
+        if (blame >= 12 && comfort <= 9) {
+            return {
+                emoji: '🐘',
+                name: '背锅象',
+                tag: '责任过载型',
+                summary: '事情最后经常落到你头上，你像是那个默认会收尾的人。',
+                quote: '大家都觉得你能扛，于是事情就真的都来了。'
+            };
+        }
+
+        if (overthinking >= 12 && comfort <= 9) {
+            return {
+                emoji: '🐸',
+                name: '内耗蛙',
+                tag: '脑内回放型',
+                summary: '你不一定是最累的那个，但你的精神后台很少真正关机。',
+                quote: '你不是被工作压垮的，你是被脑内回放磨掉的。'
+            };
+        }
+
+        if (energy >= 12 && cowPercent <= 60) {
+            return {
+                emoji: '🦥',
+                name: '树懒',
+                tag: '低电量生存型',
+                summary: '你不一定在摆，但电量确实不太够，很多时候你只是在努力别让自己彻底掉线。',
+                quote: '你不是懒，你只是长时间低电量。'
+            };
+        }
+
+        if (cowPercent <= 38 && comfort >= 11) {
+            return {
+                emoji: '🐱',
+                name: '摸鱼猫',
+                tag: '自我保护型',
+                summary: '你很懂得保留自己的空间，不会让工作轻易吞掉整个人。',
+                quote: '你在工作，但也没忘记自己还要活。'
+            };
+        }
+
+        if (cowPercent <= 42 && comfort <= 8) {
+            return {
+                emoji: '🐼',
+                name: '摆烂熊',
+                tag: '低推进低愉悦型',
+                summary: '你不太想卷，但也没有因此特别快乐，像是一种安静但略带疲惫的停摆。',
+                quote: '你不努力，不代表你轻松。'
+            };
+        }
+
+        if (selfRetain >= 12 && obedience <= 7) {
+            return {
+                emoji: '🐺',
+                name: '独狼',
+                tag: '低服从清醒型',
+                summary: '你不太喜欢被随便安排，也很难彻底把自己磨成标准件。',
+                quote: '你是在打工，不是在交出使用权。'
+            };
+        }
+
+        if (masking >= 12 && comfort >= 9) {
+            return {
+                emoji: '🦊',
+                name: '狐狸',
+                tag: '社交拿捏型',
+                summary: '你很懂场面，也知道什么时候该说什么，很多事情被你处理得看起来很自然。',
+                quote: '你不是没情绪，你只是很会包装情绪。'
+            };
+        }
+
+        if (masking >= 12 && overthinking >= 10) {
+            return {
+                emoji: '🐧',
+                name: '企鹅',
+                tag: '表面正常运行型',
+                summary: '你看起来挺稳，甚至还算配合，但这种稳定里多少有点营业成分。',
+                quote: '你看起来没问题，但其实有一点累。'
+            };
+        }
+
+        return {
+            emoji: '🐹',
+            name: '仓鼠',
+            tag: '循环运转型',
+            summary: '你每天都在转轮子，不一定特别难受，但也谈不上多有突破感。',
+            quote: '你有在前进，只是轨迹看起来像一个圆。'
+        };
+    }
+
+    function renderMetrics(result) {
+        const items = [
+            {
+                name: '牛马指数',
+                value: `${result.cowPercent}%`,
+                percent: result.cowPercent
+            },
+            {
+                name: '舒适度',
+                value: `${result.comfort}/15 · ${result.comfortText}`,
+                percent: result.comfortPercent
+            },
+            {
+                name: '服从度',
+                value: `${result.obedience}/15 · ${result.obedienceType}`,
+                percent: Math.round((result.obedience / 15) * 100)
+            },
+            {
+                name: '内耗度',
+                value: `${result.overthinking}/15 · ${result.overthinkingType}`,
+                percent: result.overthinkingPercent
+            },
+            {
+                name: '背锅体质',
+                value: `${result.blame}/15`,
+                percent: Math.round((result.blame / 15) * 100)
+            },
+            {
+                name: '自我保留',
+                value: `${result.selfRetain}/15 · ${result.selfType}`,
+                percent: result.selfPercent
+            }
+        ];
+
+        metricsGrid.innerHTML = items.map((item) => `
+        <div class="metric">
+          <div class="metric-name">${item.name}</div>
+          <div class="metric-value">${item.value}</div>
+          <div class="bar"><div class="fill" style="width:${item.percent}%"></div></div>
+        </div>
+      `).join('');
+    }
+
+    function renderTypes(result) {
+        const cards = [
+            {
+                title: '你的职场状态',
+                text: result.cowPercent >= 75
+                    ? '你和工作的绑定度比较高，很多时候是直接扛着往前走。'
+                    : result.cowPercent <= 40
+                        ? '你和工作之间还留有一些距离，不算完全被卷进去。'
+                        : '你处在一个中间区间，既在推进，也还没完全失去回旋空间。'
+            },
+            {
+                title: '你的主观感受',
+                text: result.comfort <= 6
+                    ? '整体偏压迫型，待着会累，而且这种累不只是事务本身。'
+                    : result.comfort >= 14
+                        ? '这是很少见的理想状态，你对环境的适应和掌控都不错。'
+                        : '目前属于还能待下去的区间，偶尔别扭，但没有彻底失控。'
+            },
+            {
+                title: '你保留了多少自己',
+                text: result.selfRetain >= 12
+                    ? '你身上“自己”的部分还挺明显，不太容易被职场完全塑形。'
+                    : result.selfRetain <= 6
+                        ? '你有点容易被环境吞没，久了可能会忘记自己原本的节奏。'
+                        : '你还保留着一部分自己，只是有时候需要靠安静来找回来。'
+            }
+        ];
+
+        typeGrid.innerHTML = cards.map((card) => `
+        <div class="type-card">
+          <h3>${card.title}</h3>
+          <p>${card.text}</p>
+        </div>
+      `).join('');
+    }
+
+    function buildShareText(animal, result) {
+        return [
+            `我测出来的职场动物是：${animal.emoji} ${animal.name}（${animal.tag}）`,
+            `牛马指数：${result.cowPercent}%`,
+            `舒适度：${result.comfort}/15（${result.comfortText}）`,
+            `一句话：${animal.quote}`,
+            '',
+            '—— 来测测你的职场动物吧 😂'
+        ].join('');
+    }
+
+    function renderResult(result) {
+        const animal = pickAnimal(result);
+
+        animalEmoji.textContent = animal.emoji;
+        animalName.textContent = animal.name;
+        animalTag.textContent = animal.tag;
+        resultSummary.textContent = animal.summary;
+        quoteText.textContent = animal.quote;
+        resultBadge.textContent = animal.tag.includes('隐藏款') ? '隐藏款已触发' : '测试完成';
+
+        renderMetrics(result);
+        renderTypes(result);
+        shareText.value = buildShareText(animal, result);
+
+        resultCard.classList.add('show');
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', () => {
+        const answers = getAnswers();
+        if (!answers) {
+            warning.style.display = 'block';
+            resultCard.classList.remove('show');
+            return;
+        }
+
+        warning.style.display = 'none';
+        const result = calculateResult(answers);
+        renderResult(result);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        form.reset();
+        warning.style.display = 'none';
+        resultCard.classList.remove('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(shareText.value);
+            const btn = document.getElementById('copyBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '已复制';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 1200);
+        } catch (error) {
+            alert('复制失败，可以手动长按文案复制。');
+        }
+    });
+
+    buildForm();
+</script>
+</body>
+</html>
