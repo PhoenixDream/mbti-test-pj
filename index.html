@@ -6,231 +6,714 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>心之坐标 | 维度整合解析</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://unpkg.com/suncalc/suncalc.js"></script>
     <style>
         :root {
-            --bg-start: #fdfcfb; --bg-end: #e2d1c3;
-            --accent-soft: #a8edea; --accent-warm: #fed6e3;
-            --text-main: #4b4b4b; --glass: rgba(255, 255, 255, 0.85);
+            --bg-1: #0b1020;
+            --bg-2: #151b31;
+            --bg-3: #221b2d;
+            --panel: rgba(255,255,255,0.08);
+            --panel-strong: rgba(255,255,255,0.12);
+            --line: rgba(255,255,255,0.14);
+            --text: #eef2ff;
+            --muted: #b8c0e0;
+            --soft: #95a2d8;
+            --accent: #d6b16f;
+            --accent-2: #8ad7d0;
+            --shadow: 0 20px 60px rgba(0,0,0,0.28);
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
         }
+
         * { box-sizing: border-box; }
-        body, html {
-            margin: 0; padding: 0; min-height: 100vh;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
-            color: var(--text-main); display: flex; flex-direction: column;
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+            color: var(--text);
+            background:
+                    radial-gradient(circle at 20% 20%, rgba(138,215,208,0.12), transparent 28%),
+                    radial-gradient(circle at 80% 10%, rgba(214,177,111,0.12), transparent 24%),
+                    radial-gradient(circle at 50% 100%, rgba(149,162,216,0.10), transparent 30%),
+                    linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
         }
-        .ambient-bg { position: fixed; width: 100%; height: 100%; z-index: -1; }
-        .blob {
-            position: absolute; width: 500px; height: 500px;
-            background: linear-gradient(120deg, var(--accent-soft), var(--accent-warm));
-            filter: blur(100px); border-radius: 50%; opacity: 0.5;
-            animation: move 25s infinite alternate ease-in-out;
+
+        body {
+            position: relative;
+            overflow-x: hidden;
         }
-        @keyframes move { from { transform: translate(-10%, -10%); } to { transform: translate(20%, 15%); } }
+
+        .stars, .stars:before, .stars:after {
+            position: fixed;
+            inset: 0;
+            display: block;
+            content: "";
+            pointer-events: none;
+        }
+
+        .stars {
+            background-image:
+                    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.55), transparent 55%),
+                    radial-gradient(1.5px 1.5px at 70% 22%, rgba(255,255,255,0.45), transparent 55%),
+                    radial-gradient(1.8px 1.8px at 45% 78%, rgba(255,255,255,0.35), transparent 55%),
+                    radial-gradient(1.2px 1.2px at 80% 64%, rgba(255,255,255,0.35), transparent 55%),
+                    radial-gradient(1.4px 1.4px at 10% 85%, rgba(255,255,255,0.30), transparent 55%);
+            opacity: .8;
+        }
+
+        .stars:before {
+            background:
+                    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 36px 36px;
+            mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+            opacity: .25;
+        }
+
+        .stars:after {
+            background: radial-gradient(circle at center, rgba(255,255,255,0.06), transparent 58%);
+            opacity: .4;
+        }
 
         .page-wrapper {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; padding: 40px 20px; width: 100%;
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            padding: 40px 18px 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        #result-page { display: none; opacity: 0; transition: opacity 0.6s ease; }
+
+        .shell {
+            width: 100%;
+            max-width: 1160px;
+        }
 
         .card {
-            background: var(--glass); backdrop-filter: blur(20px);
-            border-radius: 30px; padding: 40px; width: 100%; max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.6);
+            background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+            border: 1px solid var(--line);
+            backdrop-filter: blur(18px);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
         }
-        h1 { font-weight: 300; text-align: center; font-size: 24px; margin-bottom: 30px; letter-spacing: 2px; }
-        .tabs { display: flex; background: rgba(0,0,0,0.03); padding: 5px; border-radius: 12px; margin-bottom: 25px; }
-        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 8px; font-size: 14px; color: #a4b0be; transition: 0.3s; }
-        .tab.active { background: #fff; color: #57606f; font-weight: bold; }
+
+        #input-page .card {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 34px 28px 28px;
+        }
+
+        .intro-mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
+
+        .intro-mark:before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 18px rgba(214,177,111,0.5);
+        }
+
+        h1 {
+            margin: 18px 0 10px;
+            font-size: 34px;
+            font-weight: 600;
+            letter-spacing: .06em;
+            line-height: 1.15;
+        }
+
+        .hero-sub {
+            margin: 0 0 24px;
+            color: var(--muted);
+            line-height: 1.9;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 6px;
+            border-radius: 16px;
+            margin-bottom: 22px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--muted);
+            transition: .25s ease;
+        }
+
+        .tab.active {
+            color: #0f172a;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e8d8b2, #b7efe8);
+        }
+
+        .group { margin-bottom: 18px; }
         .form-section { display: none; }
         .form-section.active { display: block; }
-        .group { margin-bottom: 20px; }
-        label { display: block; font-size: 12px; margin-bottom: 8px; color: #747d8c; font-weight: bold; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--soft);
+            font-size: 12px;
+            letter-spacing: .08em;
+        }
+
         input, select {
-            width: 100%; border: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.6);
-            padding: 14px; border-radius: 12px; outline: none; font-size: 14px;
-        }
-        .btn-submit {
-            width: 100%; padding: 16px; border: none; border-radius: 15px;
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #57606f; font-weight: bold; cursor: pointer; margin-top: 10px;
-        }
-        .result-container {
-            background: #fff; border-radius: 35px; padding: 50px 35px;
-            width: 100%; max-width: 600px; box-shadow: 0 15px 50px rgba(0,0,0,0.05);
-        }
-        .ai-content { line-height: 2; font-size: 15px; color: #57606f; white-space: pre-wrap; }
-        .loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); display: none; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100;
-        }
-        .pulse { width: 50px; height: 50px; background: var(--accent-soft); border-radius: 50%; animation: p 1.5s infinite; }
-        @keyframes p { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
-        .ai-content h1, .ai-content h2, .ai-content h3 {
-            font-weight: 500;
-            color: #4b4b4b;
-            margin: 20px 0 8px;
-            letter-spacing: 1px;
-        }
-        .ai-content h1 { font-size: 20px; }
-        .ai-content h2 { font-size: 17px; }
-        .ai-content h3 { font-size: 15px; }
-
-        .ai-content hr {
-            border: none;
-            border-top: 1px solid rgba(0,0,0,0.08);
-            margin: 16px 0;
-        }
-        .ai-content p {
-            margin: 0 0 12px;
-            line-height: 2;
-        }
-        .ai-content strong { color: #57606f; font-weight: 600; }
-        .ai-content em     { color: #868e96; font-style: italic; }
-
-        .ai-content .section-title {
-            font-weight: 600;
-            font-size: 15px;
-            color: #57606f;
-            margin: 20px 0 10px;
-            padding-left: 2px;
-        }
-        .ai-content .planet-row {
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: #747d8c;
-            padding: 3px 0 3px 12px;
-            border-left: 2px solid rgba(168,237,234,0.6);
-            margin-bottom: 4px;
-        }
-        .ai-content .stellium-item {
-            color: #e17055;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            padding: 14px 15px;
+            border-radius: 14px;
+            outline: none;
             font-size: 14px;
-            padding: 4px 0 4px 12px;
-            margin-bottom: 4px;
         }
-        .ai-content ol, .ai-content ul {
+
+        input::placeholder { color: #95a0c7; }
+        select option { color: #111827; }
+
+        .btn-submit, .btn-ghost {
+            width: 100%;
+            padding: 15px 18px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: .25s ease;
+        }
+
+        .btn-submit {
+            color: #111827;
+            background: linear-gradient(135deg, #ecdab4, #a6eee6);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+        }
+
+        .btn-submit:hover, .btn-ghost:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.10);
+        }
+
+        #result-page {
+            display: none;
+            opacity: 0;
+            transition: opacity .55s ease;
+        }
+
+        .report-shell {
+            width: 100%;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .report-hero {
+            padding: 26px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-hero:before {
+            content: "";
+            position: absolute;
+            inset: auto -60px -80px auto;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(214,177,111,0.24), transparent 70%);
+            pointer-events: none;
+        }
+
+        .report-topline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .report-title {
+            margin: 0;
+            font-size: 34px;
+            line-height: 1.15;
+            letter-spacing: .05em;
+        }
+
+        .report-subtitle {
+            margin: 10px 0 0;
+            color: var(--muted);
+            line-height: 1.9;
+            max-width: 760px;
+            font-size: 14px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin: 18px 0 0;
+        }
+
+        .summary-card {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .summary-label {
+            color: var(--soft);
+            font-size: 12px;
+            margin-bottom: 10px;
+            letter-spacing: .08em;
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .summary-note {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .chip {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.05);
+            color: #e8ecff;
+            font-size: 13px;
+        }
+
+        .body-grid {
+            display: grid;
+            grid-template-columns: 1.25fr .75fr;
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .panel {
+            padding: 22px;
+        }
+
+        .panel-title {
+            margin: 0 0 14px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8e6c6;
+            letter-spacing: .08em;
+        }
+
+        .section-stack {
+            display: grid;
+            gap: 14px;
+        }
+
+        .section-card {
+            border-radius: 18px;
+            padding: 18px 18px 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .section-card h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            color: #fff4dc;
+        }
+
+        .section-card p,
+        .section-card li {
+            color: #dde5ff;
+            line-height: 1.9;
+            font-size: 14px;
+        }
+
+        .section-card ul,
+        .section-card ol {
             padding-left: 20px;
-            margin: 8px 0 12px;
+            margin: 0;
         }
-        .ai-content li {
+
+        .astro-list {
+            display: grid;
+            gap: 10px;
+            max-height: 520px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .astro-item {
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #dce3ff;
+            font-size: 13px;
             line-height: 1.8;
-            margin-bottom: 4px;
-            color: #57606f;
+        }
+
+        .astro-item strong {
+            color: #f3e2bf;
+            font-weight: 700;
+        }
+
+        .raw-box {
+            margin-top: 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .raw-toggle {
+            width: 100%;
+            background: transparent;
+            color: var(--text);
+            border: none;
+            padding: 14px 16px;
+            text-align: left;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .raw-content {
+            display: none;
+            padding: 0 16px 16px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(7,10,18,0.78);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .loader-ring {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.12);
+            border-top-color: #e6c88b;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader p {
+            margin-top: 18px;
+            color: #d8def5;
+            font-size: 13px;
+            letter-spacing: .08em;
+        }
+
+        .muted-empty {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        code {
+            background: rgba(255,255,255,0.08);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 12px;
+        }
+
+        @media (max-width: 980px) {
+            .summary-grid,
+            .body-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 28px; }
+            .report-title { font-size: 28px; }
+            #input-page .card { padding: 24px 18px 20px; }
+            .report-hero, .panel { padding: 18px; }
+            .report-actions { flex-direction: column; }
+        }
+
+        /* ===== 滚动条美化 ===== */
+        .astro-list,
+        .raw-content,
+        body {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(214, 177, 111, 0.55) rgba(255,255,255,0.05);
+        }
+
+        /* WebKit 浏览器 */
+        .astro-list::-webkit-scrollbar,
+        .raw-content::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        .astro-list::-webkit-scrollbar-track,
+        .raw-content::-webkit-scrollbar-track,
+        body::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.04);
+            border-radius: 999px;
+        }
+
+        .astro-list::-webkit-scrollbar-thumb,
+        .raw-content::-webkit-scrollbar-thumb,
+        body::-webkit-scrollbar-thumb {
+            background: linear-gradient(
+                    180deg,
+                    rgba(214, 177, 111, 0.85),
+                    rgba(138, 215, 208, 0.75)
+            );
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .astro-list::-webkit-scrollbar-thumb:hover,
+        .raw-content::-webkit-scrollbar-thumb:hover,
+        body::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(
+                    180deg,
+                    rgba(236, 218, 180, 0.95),
+                    rgba(166, 238, 230, 0.9)
+            );
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
         }
     </style>
 </head>
 <body>
-<div class="ambient-bg"><div class="blob"></div></div>
+<div class="stars"></div>
 
 <div id="input-page" class="page-wrapper">
-    <div class="card">
-        <h1>维度整合觉察</h1>
-        <div class="group">
-            <label>探索者代号</label>
-            <input type="text" id="nickname" placeholder="您的昵称" maxlength="15">
-        </div>
-        <div class="tabs">
-            <div class="tab active" onclick="switchMode('simple')">轻量解析</div>
-            <div class="tab" onclick="switchMode('precision')">深度溯源</div>
-        </div>
-        <div class="group">
-            <label>MBTI 人格类型</label>
-            <select id="mbti">
-                <optgroup label="分析家">
-                    <option value="INTJ">INTJ 建筑师</option><option value="INTP">INTP 逻辑学家</option>
-                    <option value="ENTJ">ENTJ 指挥官</option><option value="ENTP">ENTP 辩论家</option>
-                </optgroup>
-                <optgroup label="外交家">
-                    <option value="INFJ">INFJ 提倡者</option><option value="INFP">INFP 调停者</option>
-                    <option value="ENFJ">ENFJ 主人公</option><option value="ENFP">ENFP 竞选者</option>
-                </optgroup>
-                <optgroup label="守护者">
-                    <option value="ISTJ">ISTJ 物流师</option><option value="ISFJ">ISFJ 守卫者</option>
-                    <option value="ESTJ">ESTJ 总经理</option><option value="ESFJ">ESFJ 执政官</option>
-                </optgroup>
-                <optgroup label="探险家">
-                    <option value="ISTP">ISTP 鉴赏家</option><option value="ISFP">ISFP 探险家</option>
-                    <option value="ESTP">ESTP 企业家</option><option value="ESFP">ESFP 表演者</option>
-                </optgroup>
-            </select>
-        </div>
-        <div id="simple-form" class="form-section active">
+    <div class="shell">
+        <div class="card">
+            <div class="intro-mark">Inner Archive</div>
+            <h1>心之坐标</h1>
+            <p class="hero-sub">
+                以 MBTI 与星盘结构为入口，整理一份更像“人格档案”的结果。
+                不只是生成内容，而是把你的关键结构收束成一份有层级的报告。
+            </p>
+
             <div class="group">
-                <label>太阳星座</label>
-                <select id="zodiac">
-                    <option value="白羊座">白羊座</option><option value="金牛座">金牛座</option>
-                    <option value="双子座">双子座</option><option value="巨蟹座">巨蟹座</option>
-                    <option value="狮子座">狮子座</option><option value="处女座">处女座</option>
-                    <option value="天秤座">天秤座</option><option value="天蝎座">天蝎座</option>
-                    <option value="射手座">射手座</option><option value="摩羯座">摩羯座</option>
-                    <option value="水瓶座">水瓶座</option><option value="双鱼座">双鱼座</option>
+                <label>探索者代号</label>
+                <input type="text" id="nickname" placeholder="输入一个你想出现在报告封面的名字" maxlength="15">
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchMode('simple')">轻量解析</div>
+                <div class="tab" onclick="switchMode('precision')">深度溯源</div>
+            </div>
+
+            <div class="group">
+                <label>MBTI 人格类型</label>
+                <select id="mbti">
+                    <optgroup label="分析家">
+                        <option value="INTJ">INTJ 建筑师</option><option value="INTP">INTP 逻辑学家</option>
+                        <option value="ENTJ">ENTJ 指挥官</option><option value="ENTP">ENTP 辩论家</option>
+                    </optgroup>
+                    <optgroup label="外交家">
+                        <option value="INFJ">INFJ 提倡者</option><option value="INFP">INFP 调停者</option>
+                        <option value="ENFJ">ENFJ 主人公</option><option value="ENFP">ENFP 竞选者</option>
+                    </optgroup>
+                    <optgroup label="守护者">
+                        <option value="ISTJ">ISTJ 物流师</option><option value="ISFJ">ISFJ 守卫者</option>
+                        <option value="ESTJ">ESTJ 总经理</option><option value="ESFJ">ESFJ 执政官</option>
+                    </optgroup>
+                    <optgroup label="探险家">
+                        <option value="ISTP">ISTP 鉴赏家</option><option value="ISFP">ISFP 探险家</option>
+                        <option value="ESTP">ESTP 企业家</option><option value="ESFP">ESFP 表演者</option>
+                    </optgroup>
                 </select>
             </div>
-        </div>
-        <div id="precision-form" class="form-section">
-            <div class="group">
-                <label>出生日期及时间</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="date" id="birth-date" style="flex: 2;">
-                    <input type="time" id="birth-time" style="flex: 1;">
+
+            <div id="simple-form" class="form-section active">
+                <div class="group">
+                    <label>太阳星座</label>
+                    <select id="zodiac">
+                        <option value="白羊座">白羊座</option><option value="金牛座">金牛座</option>
+                        <option value="双子座">双子座</option><option value="巨蟹座">巨蟹座</option>
+                        <option value="狮子座">狮子座</option><option value="处女座">处女座</option>
+                        <option value="天秤座">天秤座</option><option value="天蝎座">天蝎座</option>
+                        <option value="射手座">射手座</option><option value="摩羯座">摩羯座</option>
+                        <option value="水瓶座">水瓶座</option><option value="双鱼座">双鱼座</option>
+                    </select>
                 </div>
             </div>
-            <div class="group">
-                <label>出生地点</label>
-                <input type="text" id="birth-place" placeholder="城市名称 (例如: 北京)">
+
+            <div id="precision-form" class="form-section">
+                <div class="group">
+                    <label>出生日期及时间</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="date" id="birth-date" style="flex:2;">
+                        <input type="time" id="birth-time" style="flex:1;">
+                    </div>
+                </div>
+                <div class="group">
+                    <label>出生地点</label>
+                    <input type="text" id="birth-place" placeholder="请输入城市名称，例如：北京 / 上海 / 东京">
+                </div>
             </div>
+
+            <button class="btn-submit" onclick="run()">生成觉察报告</button>
         </div>
-        <button class="btn-submit" onclick="run()">生成深度报告</button>
     </div>
 </div>
 
 <div id="result-page" class="page-wrapper">
-    <div class="result-container" id="poster">
-        <h2 id="res-nickname" style="text-align:center; font-weight:300;">探索者报告</h2>
-        <div class="ai-content" id="content"></div>
-    </div>
-    <div style="display:flex; gap:15px; margin-top:20px; width:100%; max-width:600px;">
-        <button class="btn-submit" style="background:#fff; border:1px solid #ddd; flex:1;" onclick="location.reload()">重新探索</button>
-        <button class="btn-submit" style="flex:1;" onclick="download()">保存画像</button>
+    <div class="report-shell" id="poster">
+        <section class="card report-hero">
+            <div class="report-topline">
+                <div class="badge" id="badge-mode">Precision Report</div>
+                <div class="badge" id="badge-mbti">INFJ</div>
+                <div class="badge" id="badge-time">人格 × 星盘</div>
+            </div>
+            <h2 class="report-title" id="res-nickname">探索者的觉察报告</h2>
+            <p class="report-subtitle" id="report-subtitle">
+                一份基于人格偏好与盘面结构的整合式摘要，将重点结论、生命领域与内在张力整理成可阅读的个人档案。
+            </p>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">核心聚焦</div>
+                    <div class="summary-value" id="summary-sign">—</div>
+                    <div class="summary-note" id="summary-sign-note">从盘面里提取主导星座倾向</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">生命场域</div>
+                    <div class="summary-value" id="summary-house">—</div>
+                    <div class="summary-note" id="summary-house-note">从行星集中宫位中归纳</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">人格面具</div>
+                    <div class="summary-value" id="summary-rising">—</div>
+                    <div class="summary-note" id="summary-rising-note">优先提取上升结构</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">能量气候</div>
+                    <div class="summary-value" id="summary-element">—</div>
+                    <div class="summary-note" id="summary-element-note">元素 / 模式的视觉摘要</div>
+                </div>
+            </div>
+
+            <div class="chips" id="summary-chips"></div>
+        </section>
+
+        <div class="body-grid">
+            <section class="card panel">
+                <h3 class="panel-title">ANALYSIS DOSSIER</h3>
+                <div class="section-stack" id="content"></div>
+            </section>
+
+            <aside class="card panel">
+                <h3 class="panel-title">STAR MAP SNAPSHOT</h3>
+                <div class="astro-list" id="astro-summary"></div>
+
+                <div class="raw-box">
+                    <button class="raw-toggle" onclick="toggleRaw()">查看原始星盘摘要</button>
+                    <div class="raw-content" id="raw-content"></div>
+                </div>
+            </aside>
+        </div>
+
+        <div class="report-actions">
+            <button class="btn-ghost" onclick="location.reload()">重新探索</button>
+            <button class="btn-submit" onclick="download()">保存画像</button>
+        </div>
     </div>
 </div>
 
 <div class="loader" id="loader">
-    <div class="pulse"></div>
-    <p style="margin-top:20px; color:#57606f; letter-spacing:1px; font-size:13px;">
-        正在计算天体弧度并校对荣格功能偏好...
-    </p>
+    <div class="loader-ring"></div>
+    <p>正在归档星盘结构与人格线索...</p>
 </div>
 
 <script>
     let currentMode = 'simple';
     const API_URL = "https://astro-worker.jackwilsonbuddy.workers.dev";
 
-    const EN_TO_CN = {
-        Aries:'白羊座', Taurus:'金牛座', Gemini:'双子座', Cancer:'巨蟹座',
-        Leo:'狮子座', Virgo:'处女座', Libra:'天秤座', Scorpio:'天蝎座',
-        Sagittarius:'射手座', Capricorn:'摩羯座', Aquarius:'水瓶座', Pisces:'双鱼座',
-        sun:'太阳', moon:'月亮', mercury:'水星', venus:'金星', mars:'火星',
-        jupiter:'木星', saturn:'土星', uranus:'天王星', neptune:'海王星', pluto:'冥王星'
-    };
-
     function switchMode(m) {
         currentMode = m;
-
-        document.querySelectorAll('.tab')
-            .forEach(t => t.classList.remove('active'));
-
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         const tabs = document.querySelectorAll('.tab');
         if (m === 'simple') tabs[0].classList.add('active');
         else tabs[1].classList.add('active');
 
-        document.querySelectorAll('.form-section')
-            .forEach(f => f.classList.remove('active'));
-
+        document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
         document.getElementById(m + '-form').classList.add('active');
     }
 
@@ -239,28 +722,16 @@
     window.run = async () => {
         const nickname = document.getElementById('nickname').value || '探索者';
         const mbti = document.getElementById('mbti').value;
-
         document.getElementById('loader').style.display = 'flex';
 
-        let payload = {
-            nickname,
-            mbti,
-            mode: currentMode
-        };
+        let payload = { nickname, mbti, mode: currentMode };
 
-        // =========================
-        // 1. 简单模式
-        // =========================
         if (currentMode === 'simple') {
             payload.birthType = "simple";
             payload.zodiac = document.getElementById('zodiac').value;
         }
 
-        // =========================
-        // 2. 精确模式（关键：只收集数据）
-        // =========================
         if (currentMode === 'precision') {
-
             const birthDate = document.getElementById('birth-date').value;
             const birthTime = document.getElementById('birth-time').value || '12:00';
             const place = document.getElementById('birth-place').value;
@@ -278,10 +749,6 @@
         }
 
         try {
-
-            // =========================
-            // 3. 发给 Worker（星盘计算全部在后端）
-            // =========================
             const r = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -291,23 +758,22 @@
             const res = await r.json();
             if (res.error) throw new Error(res.error);
 
-            // =========================
-            // 4. 渲染结果
-            // =========================
+            renderReport({
+                nickname,
+                mbti,
+                birthType: payload.birthType,
+                result: res.result || "",
+                astro: res.astro || "",
+                summary: res.summary || null
+            });
+
             document.getElementById('input-page').style.display = 'none';
             document.getElementById('loader').style.display = 'none';
-            document.getElementById('result-page').style.display = 'flex';
+            document.getElementById('result-page').style.display = 'block';
 
             setTimeout(() => {
                 document.getElementById('result-page').style.opacity = '1';
-                document.getElementById('res-nickname').innerText =
-                    nickname + ' 的觉察报告';
-
-                // Worker 返回 Markdown
-                document.getElementById('content').innerHTML =
-                    mdToHtml(res.result);
-
-            }, 50);
+            }, 40);
 
         } catch (e) {
             console.error(e);
@@ -316,28 +782,258 @@
         }
     };
 
-    /* =========================
-       下载
-       ========================= */
-    window.download = () => {
-        const poster = document.getElementById('poster');
+    function renderReport({ nickname, mbti, birthType, result, astro, summary }) {
+        document.getElementById('res-nickname').innerText = `${nickname} 的觉察报告`;
+        document.getElementById('badge-mode').innerText = birthType === 'precision' ? 'Precision Report' : 'Light Report';
+        document.getElementById('badge-mbti').innerText = mbti;
+        document.getElementById('badge-time').innerText = birthType === 'precision' ? '人格 × 本命盘' : '人格 × 太阳星座';
 
-        html2canvas(poster, {
-            scale: 2,
-            useCORS: true
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download =
-                `${document.getElementById('nickname').value || '探索者'}_报告.png`;
+        const finalSummary = summary || extractSummaryFromAstro(astro, birthType);
 
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+        fillHeroSummary(finalSummary, nickname, mbti, birthType);
+        renderAstroSummary(astro);
+        renderMarkdownSections(result);
+        document.getElementById('raw-content').textContent = astro || '暂无原始星盘摘要';
+    }
+
+    function extractSummaryFromAstro(astro, birthType) {
+        const summary = {
+            rising: "未提供",
+            dominantSign: "待识别",
+            dominantHouse: "待识别",
+            dominantElement: "待识别",
+            chips: []
+        };
+
+        if (!astro) {
+            if (birthType === 'simple') {
+                summary.dominantSign = '太阳结构';
+                summary.dominantHouse = '轻量模式';
+                summary.dominantElement = '未展开';
+            }
+            return summary;
+        }
+
+        const lines = astro.split('\n').map(s => s.trim()).filter(Boolean);
+        const signCount = {};
+        const houseCount = {};
+        let inPlanetSection = false;
+        let inElementSection = false;
+        let elementText = [];
+
+        for (const line of lines) {
+            if (line.includes('【行星位置】')) {
+                inPlanetSection = true;
+                inElementSection = false;
+                continue;
+            }
+            if (line.includes('【宫位起点】')) {
+                inPlanetSection = false;
+                inElementSection = false;
+                continue;
+            }
+            if (line.includes('【元素与模式分布】')) {
+                inPlanetSection = false;
+                inElementSection = true;
+                continue;
+            }
+
+            if (inPlanetSection) {
+                const m = line.match(/^(.+?)：(.+?)\s+(\d+)°(\d+)′，第(\d+)宫$/);
+                if (m) {
+                    const planetName = m[1];
+                    const sign = m[2];
+                    const house = `第${m[5]}宫`;
+
+                    signCount[sign] = (signCount[sign] || 0) + 1;
+                    houseCount[house] = (houseCount[house] || 0) + 1;
+
+                    if (planetName === '上升') {
+                        summary.rising = `${sign}座`;
+                    }
+                }
+            }
+
+            if (inElementSection) {
+                elementText.push(line);
+            }
+        }
+
+        const dominantSign = pickTop(signCount);
+        const dominantHouse = pickTop(houseCount);
+
+        if (dominantSign) summary.dominantSign = dominantSign;
+        if (dominantHouse) summary.dominantHouse = dominantHouse;
+
+        const elementLine = elementText.find(l => l.startsWith('水象：') || l.startsWith('火象：') || l.startsWith('风象：') || l.startsWith('土象：'));
+        if (elementLine) {
+            const sorted = ['水象', '火象', '风象', '土象']
+                .map(name => {
+                    const line = elementText.find(l => l.startsWith(name + '：'));
+                    const count = line ? line.split('：')[1].split('、').filter(Boolean).length : 0;
+                    return { name, count };
+                })
+                .sort((a, b) => b.count - a.count);
+
+            if (sorted[0].count > 0) {
+                summary.dominantElement = `${sorted[0].name}偏强`;
+            }
+        }
+
+        if (summary.rising !== '未提供') summary.chips.push(`人格面具：${summary.rising}`);
+        if (summary.dominantSign !== '待识别') summary.chips.push(`星座焦点：${summary.dominantSign}`);
+        if (summary.dominantHouse !== '待识别') summary.chips.push(`生命重心：${summary.dominantHouse}`);
+        if (summary.dominantElement !== '待识别') summary.chips.push(`能量气候：${summary.dominantElement}`);
+
+        return summary;
+    }
+
+    function pickTop(obj) {
+        const entries = Object.entries(obj);
+        if (!entries.length) return "";
+        entries.sort((a, b) => b[1] - a[1]);
+        return entries[0][0];
+    }
+
+    function fillHeroSummary(summary, nickname, mbti, birthType) {
+        document.getElementById('summary-sign').innerText = summary?.dominantSign || '待识别';
+        document.getElementById('summary-house').innerText = summary?.dominantHouse || '待识别';
+        document.getElementById('summary-rising').innerText = summary?.rising || '未提供';
+        document.getElementById('summary-element').innerText = summary?.dominantElement || '待识别';
+
+        document.getElementById('summary-sign-note').innerText =
+            birthType === 'precision' ? '从行星分布中提取的主导星座倾向' : '轻量模式下以太阳星座为核心';
+        document.getElementById('summary-house-note').innerText =
+            birthType === 'precision' ? '行星最集中的生命领域' : '轻量模式不展开宫位';
+        document.getElementById('summary-rising-note').innerText =
+            birthType === 'precision' ? '外在人格与进入世界的方式' : '轻量模式未提供上升';
+        document.getElementById('summary-element-note').innerText =
+            birthType === 'precision' ? '从元素/模式分布压缩出的气候感' : '轻量模式未展开元素';
+
+        const sub = birthType === 'precision'
+            ? `${nickname} 的报告已从星盘原始结构中抽取重点，并将 ${mbti} 的认知偏好与主导生命领域并置整理。先看摘要，再看正文，会更像在阅读一份被编辑过的档案。`
+            : `${nickname} 的报告基于 ${mbti} 与太阳星座完成快速整合，更适合先看总体气质与人格映照。`;
+
+        document.getElementById('report-subtitle').innerText = sub;
+
+        const chips = document.getElementById('summary-chips');
+        chips.innerHTML = "";
+
+        if (summary?.chips?.length) {
+            summary.chips.forEach(t => {
+                const el = document.createElement('span');
+                el.className = 'chip';
+                el.innerText = t;
+                chips.appendChild(el);
+            });
+        } else {
+            chips.innerHTML = `<span class="chip">轻量模式 · 快速人格映射</span>`;
+        }
+
+        summary.chips.forEach(t => {
+            const el = document.createElement('span');
+            el.className = 'chip';
+            el.innerText = t;
+            chips.appendChild(el);
         });
-    };
+    }
 
-    /* =========================
-       Markdown
-       ========================= */
+    function renderAstroSummary(astro) {
+        const box = document.getElementById('astro-summary');
+        box.innerHTML = "";
+
+        if (!astro) {
+            box.innerHTML = `<div class="muted-empty">暂无可展示的盘面摘要。</div>`;
+            return;
+        }
+
+        const lines = astro.split('\n').map(s => s.trim()).filter(Boolean);
+        let take = [];
+        let inPlanet = false;
+
+        for (const line of lines) {
+            if (line.includes('【行星位置】')) {
+                inPlanet = true;
+                continue;
+            }
+            if (line.includes('【宫位起点】')) break;
+            if (inPlanet) take.push(line);
+        }
+
+        if (!take.length) take = lines.slice(0, 10);
+
+        take.slice(0, 12).forEach(line => {
+            const item = document.createElement('div');
+            item.className = 'astro-item';
+
+            if (line.includes('：')) {
+                const i = line.indexOf('：');
+                item.innerHTML = `<strong>${line.slice(0, i + 1)}</strong>${line.slice(i + 1)}`;
+            } else {
+                item.textContent = line;
+            }
+
+            box.appendChild(item);
+        });
+    }
+
+    function renderMarkdownSections(markdown) {
+        const root = document.getElementById('content');
+        root.innerHTML = "";
+
+        const sections = splitMarkdownSections(markdown);
+
+        if (!sections.length) {
+            const el = document.createElement('div');
+            el.className = 'section-card';
+            el.innerHTML = `<h3>报告正文</h3>${mdToHtml(markdown || "暂无内容")}`;
+            root.appendChild(el);
+            return;
+        }
+
+        sections.forEach(section => {
+            const card = document.createElement('article');
+            card.className = 'section-card';
+
+            const h = document.createElement('h3');
+            h.innerText = section.title;
+
+            const body = document.createElement('div');
+            body.innerHTML = mdToHtml(section.body);
+
+            card.appendChild(h);
+            card.appendChild(body);
+            root.appendChild(card);
+        });
+    }
+
+    function splitMarkdownSections(markdown) {
+        if (!markdown) return [];
+        const lines = markdown.split('\n');
+        const sections = [];
+        let current = null;
+
+        for (const raw of lines) {
+            const line = raw.trim();
+
+            if (/^##\s+/.test(line)) {
+                if (current) sections.push(current);
+                current = { title: line.replace(/^##\s+/, ''), body: '' };
+                continue;
+            }
+
+            if (!current) {
+                current = { title: '报告正文', body: '' };
+            }
+
+            current.body += raw + '\n';
+        }
+
+        if (current) sections.push(current);
+
+        return sections.filter(s => s.body.trim() || s.title.trim());
+    }
+
     function escapeHtml(str) {
         return str
             .replace(/&/g, "&amp;")
@@ -361,78 +1057,44 @@
         let inOl = false;
 
         function closeLists() {
-            if (inUl) {
-                html += "</ul>";
-                inUl = false;
-            }
-            if (inOl) {
-                html += "</ol>";
-                inOl = false;
-            }
+            if (inUl) { html += "</ul>"; inUl = false; }
+            if (inOl) { html += "</ol>"; inOl = false; }
         }
 
         for (let rawLine of lines) {
             const line = rawLine.trim();
 
-            // 空行
             if (!line) {
                 closeLists();
                 continue;
             }
 
-            // 标题
             if (/^###\s+/.test(line)) {
                 closeLists();
-                html += `<h3>${parseInlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`;
-                continue;
-            }
-            if (/^##\s+/.test(line)) {
-                closeLists();
-                html += `<h2>${parseInlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`;
-                continue;
-            }
-            if (/^#\s+/.test(line)) {
-                closeLists();
-                html += `<h1>${parseInlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`;
+                html += `<h4 style="margin:8px 0 10px;color:#f8e6c6;font-size:15px;">${parseInlineMarkdown(line.replace(/^###\s+/, ""))}</h4>`;
                 continue;
             }
 
-            // 分隔线
             if (/^---+$/.test(line) || /^\*\*\*+$/.test(line)) {
                 closeLists();
-                html += "<hr>";
+                html += "<hr style='border:none;border-top:1px solid rgba(255,255,255,0.10);margin:12px 0;'>";
                 continue;
             }
 
-            // 无序列表
             if (/^[-*]\s+/.test(line)) {
-                if (inOl) {
-                    html += "</ol>";
-                    inOl = false;
-                }
-                if (!inUl) {
-                    html += "<ul>";
-                    inUl = true;
-                }
+                if (inOl) { html += "</ol>"; inOl = false; }
+                if (!inUl) { html += "<ul>"; inUl = true; }
                 html += `<li>${parseInlineMarkdown(line.replace(/^[-*]\s+/, ""))}</li>`;
                 continue;
             }
 
-            // 有序列表
             if (/^\d+\.\s+/.test(line)) {
-                if (inUl) {
-                    html += "</ul>";
-                    inUl = false;
-                }
-                if (!inOl) {
-                    html += "<ol>";
-                    inOl = true;
-                }
+                if (inUl) { html += "</ul>"; inUl = false; }
+                if (!inOl) { html += "<ol>"; inOl = true; }
                 html += `<li>${parseInlineMarkdown(line.replace(/^\d+\.\s+/, ""))}</li>`;
                 continue;
             }
 
-            // 普通段落
             closeLists();
             html += `<p>${parseInlineMarkdown(line)}</p>`;
         }
@@ -440,6 +1102,28 @@
         closeLists();
         return html;
     }
+
+    function toggleRaw() {
+        const box = document.getElementById('raw-content');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.toggleRaw = toggleRaw;
+
+    window.download = () => {
+        const poster = document.getElementById('poster');
+
+        html2canvas(poster, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: null
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `${document.getElementById('nickname').value || '探索者'}_报告.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    };
 </script>
 </body>
 </html>
