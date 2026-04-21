@@ -2,248 +2,443 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>维度坐标：心理占星整合引擎</title>
+    <title>心之坐标 | 维度整合解析</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/suncalc/suncalc.js"></script>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --text-color: #333;
+            --bg-start: #fdfcfb; --bg-end: #e2d1c3;
+            --accent-soft: #a8edea; --accent-warm: #fed6e3;
+            --text-main: #4b4b4b; --glass: rgba(255, 255, 255, 0.85);
         }
-        body {
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            padding: 20px 0;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            color: var(--text-main); display: flex; flex-direction: column;
         }
-        .container { width: 95%; max-width: 550px; }
+        .ambient-bg { position: fixed; width: 100%; height: 100%; z-index: -1; }
+        .blob {
+            position: absolute; width: 500px; height: 500px;
+            background: linear-gradient(120deg, var(--accent-soft), var(--accent-warm));
+            filter: blur(100px); border-radius: 50%; opacity: 0.5;
+            animation: move 25s infinite alternate ease-in-out;
+        }
+        @keyframes move { from { transform: translate(-10%, -10%); } to { transform: translate(20%, 15%); } }
+
+        .page-wrapper {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 40px 20px; width: 100%;
+        }
+        #result-page { display: none; opacity: 0; transition: opacity 0.6s ease; }
+
         .card {
-            background: rgba(255, 255, 255, 0.98);
-            color: var(--text-color);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            background: var(--glass); backdrop-filter: blur(20px);
+            border-radius: 30px; padding: 40px; width: 100%; max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.6);
         }
-        h1 { text-align: center; font-size: 20px; color: #1a1a1b; margin-bottom: 25px; letter-spacing: 1px; }
-
-        /* 模式切换器 */
-        .mode-switcher {
-            display: flex;
-            background: #eee;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            padding: 4px;
-        }
-        .mode-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: bold;
-            color: #777;
-            transition: all 0.3s;
-        }
-        .mode-btn.active { background: #fff; color: var(--accent-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
+        h1 { font-weight: 300; text-align: center; font-size: 24px; margin-bottom: 30px; letter-spacing: 2px; }
+        .tabs { display: flex; background: rgba(0,0,0,0.03); padding: 5px; border-radius: 12px; margin-bottom: 25px; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 8px; font-size: 14px; color: #a4b0be; transition: 0.3s; }
+        .tab.active { background: #fff; color: #57606f; font-weight: bold; }
         .form-section { display: none; }
         .form-section.active { display: block; }
-
-        .form-group { margin-bottom: 15px; }
-        label { font-size: 13px; font-weight: bold; color: #555; display: block; margin-bottom: 6px; }
+        .group { margin-bottom: 20px; }
+        label { display: block; font-size: 12px; margin-bottom: 8px; color: #747d8c; font-weight: bold; }
         input, select {
-            width: 100%; padding: 12px;
-            border: 1px solid #ddd; border-radius: 8px;
-            font-size: 14px; box-sizing: border-box;
+            width: 100%; border: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.6);
+            padding: 14px; border-radius: 12px; outline: none; font-size: 14px;
         }
-        .row { display: flex; gap: 10px; }
-        .row > div { flex: 1; }
-
-        button.btn-main {
-            width: 100%; padding: 16px; margin-top: 15px;
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white; border: none; border-radius: 10px;
-            font-size: 16px; font-weight: bold; cursor: pointer;
+        .btn-submit {
+            width: 100%; padding: 16px; border: none; border-radius: 15px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #57606f; font-weight: bold; cursor: pointer; margin-top: 10px;
         }
+        .result-container {
+            background: #fff; border-radius: 35px; padding: 50px 35px;
+            width: 100%; max-width: 600px; box-shadow: 0 15px 50px rgba(0,0,0,0.05);
+        }
+        .ai-content { line-height: 2; font-size: 15px; color: #57606f; white-space: pre-wrap; }
+        .loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 100;
+        }
+        .pulse { width: 50px; height: 50px; background: var(--accent-soft); border-radius: 50%; animation: p 1.5s infinite; }
+        @keyframes p { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
+        .ai-content h1, .ai-content h2, .ai-content h3 {
+            font-weight: 500;
+            color: #4b4b4b;
+            margin: 20px 0 8px;
+            letter-spacing: 1px;
+        }
+        .ai-content h1 { font-size: 20px; }
+        .ai-content h2 { font-size: 17px; }
+        .ai-content h3 { font-size: 15px; }
 
-        #loading { display: none; text-align: center; padding: 20px; }
-        #result-box { display: none; margin-top: 20px; }
-        .ai-text { line-height: 1.8; font-size: 14px; white-space: pre-wrap; color: #2c3e50; }
+        .ai-content hr {
+            border: none;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            margin: 16px 0;
+        }
+        .ai-content p {
+            margin: 0 0 12px;
+            line-height: 2;
+        }
+        .ai-content strong { color: #57606f; font-weight: 600; }
+        .ai-content em     { color: #868e96; font-style: italic; }
 
-        .watermark {
-            text-align: center; font-size: 11px; color: #999; margin-top: 20px;
-            border-top: 1px solid #eee; padding-top: 15px; display: none;
+        .ai-content .section-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #57606f;
+            margin: 20px 0 10px;
+            padding-left: 2px;
+        }
+        .ai-content .planet-row {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #747d8c;
+            padding: 3px 0 3px 12px;
+            border-left: 2px solid rgba(168,237,234,0.6);
+            margin-bottom: 4px;
+        }
+        .ai-content .stellium-item {
+            color: #e17055;
+            font-size: 14px;
+            padding: 4px 0 4px 12px;
+            margin-bottom: 4px;
+        }
+        .ai-content ol, .ai-content ul {
+            padding-left: 20px;
+            margin: 8px 0 12px;
+        }
+        .ai-content li {
+            line-height: 1.8;
+            margin-bottom: 4px;
+            color: #57606f;
         }
     </style>
 </head>
 <body>
+<div class="ambient-bg"><div class="blob"></div></div>
 
-<div class="container">
-    <div class="card" id="capture-area">
-        <h1>🌌 深度心理与星盘整合解析</h1>
-
-        <!-- 昵称通用输入 -->
-        <div class="form-group">
-            <label>昵称 / 探索者代号</label>
-            <input type="text" id="nickname" placeholder="如何称呼您？" maxlength="15">
+<div id="input-page" class="page-wrapper">
+    <div class="card">
+        <h1>维度整合觉察</h1>
+        <div class="group">
+            <label>探索者代号</label>
+            <input type="text" id="nickname" placeholder="您的昵称" maxlength="15">
         </div>
-
-        <!-- 模式选择 -->
-        <div class="mode-switcher">
-            <button class="mode-btn active" onclick="switchMode('simple')">入门模式</button>
-            <button class="mode-btn" onclick="switchMode('precision')">精准模式</button>
+        <div class="tabs">
+            <div class="tab active" onclick="switchMode('simple')">轻量解析</div>
+            <div class="tab" onclick="switchMode('precision')">深度溯源</div>
         </div>
-
-        <!-- 入门模式表单 -->
-        <div id="simple-section" class="form-section active">
-            <div class="row">
-                <div class="form-group">
-                    <label>MBTI 类型</label>
-                    <select id="mbti">
-                        <option value="INTJ">INTJ</option><option value="INTP">INTP</option>
-                        <option value="ENTJ">ENTJ</option><option value="ENTP">ENTP</option>
-                        <option value="INFJ">INFJ</option><option value="INFP">INFP</option>
-                        <option value="ENFJ">ENFJ</option><option value="ENFP">ENFP</option>
-                        <option value="ISTJ">ISTJ</option><option value="ISFJ">ISFJ</option>
-                        <option value="ESTJ">ESTJ</option><option value="ESFJ">ESFJ</option>
-                        <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option>
-                        <option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>太阳星座</label>
-                    <select id="zodiac">
-                        <option value="白羊座">白羊座</option><option value="金牛座">金牛座</option>
-                        <option value="双子座">双子座</option><option value="巨蟹座">巨蟹座</option>
-                        <option value="狮子座">狮子座</option><option value="处女座">处女座</option>
-                        <option value="天秤座">天秤座</option><option value="天蝎座">天蝎座</option>
-                        <option value="射手座">射手座</option><option value="摩羯座">摩羯座</option>
-                        <option value="水瓶座">水瓶座</option><option value="双鱼座">双鱼座</option>
-                    </select>
-                </div>
+        <div class="group">
+            <label>MBTI 人格类型</label>
+            <select id="mbti">
+                <optgroup label="分析家">
+                    <option value="INTJ">INTJ 建筑师</option><option value="INTP">INTP 逻辑学家</option>
+                    <option value="ENTJ">ENTJ 指挥官</option><option value="ENTP">ENTP 辩论家</option>
+                </optgroup>
+                <optgroup label="外交家">
+                    <option value="INFJ">INFJ 提倡者</option><option value="INFP">INFP 调停者</option>
+                    <option value="ENFJ">ENFJ 主人公</option><option value="ENFP">ENFP 竞选者</option>
+                </optgroup>
+                <optgroup label="守护者">
+                    <option value="ISTJ">ISTJ 物流师</option><option value="ISFJ">ISFJ 守卫者</option>
+                    <option value="ESTJ">ESTJ 总经理</option><option value="ESFJ">ESFJ 执政官</option>
+                </optgroup>
+                <optgroup label="探险家">
+                    <option value="ISTP">ISTP 鉴赏家</option><option value="ISFP">ISFP 探险家</option>
+                    <option value="ESTP">ESTP 企业家</option><option value="ESFP">ESFP 表演者</option>
+                </optgroup>
+            </select>
+        </div>
+        <div id="simple-form" class="form-section active">
+            <div class="group">
+                <label>太阳星座</label>
+                <select id="zodiac">
+                    <option value="白羊座">白羊座</option><option value="金牛座">金牛座</option>
+                    <option value="双子座">双子座</option><option value="巨蟹座">巨蟹座</option>
+                    <option value="狮子座">狮子座</option><option value="处女座">处女座</option>
+                    <option value="天秤座">天秤座</option><option value="天蝎座">天蝎座</option>
+                    <option value="射手座">射手座</option><option value="摩羯座">摩羯座</option>
+                    <option value="水瓶座">水瓶座</option><option value="双鱼座">双鱼座</option>
+                </select>
             </div>
         </div>
-
-        <!-- 精准模式表单 -->
-        <div id="precision-section" class="form-section">
-            <div class="form-group">
-                <label>出生日期 (公历)</label>
-                <input type="date" id="birth-date">
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label>出生具体时间</label>
-                    <input type="time" id="birth-time">
-                </div>
-                <div class="form-group">
-                    <label>出生地点 (城市/省份)</label>
-                    <input type="text" id="birth-place" placeholder="如：上海、东京">
+        <div id="precision-form" class="form-section">
+            <div class="group">
+                <label>出生日期及时间</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="date" id="birth-date" style="flex: 2;">
+                    <input type="time" id="birth-time" style="flex: 1;">
                 </div>
             </div>
-            <p style="font-size: 11px; color: #888;">* 算法将自动根据经纬度推算真太阳时与上升点。</p>
-        </div>
-
-        <button class="btn-main" onclick="startAnalysis()">启动深度解析 🏛️</button>
-
-        <div id="loading">
-            <div style="font-size: 24px;">⌛</div>
-            正在检索星历表并构建心理原型...
-        </div>
-
-        <div id="result-box">
-            <div class="ai-text" id="ai-content"></div>
-            <div class="watermark" id="watermark">
-                探索者：<span id="res-nickname"></span> | 维度整合解析报告
+            <div class="group">
+                <label>出生地点</label>
+                <input type="text" id="birth-place" placeholder="城市名称 (例如: 北京)">
             </div>
         </div>
+        <button class="btn-submit" onclick="run()">生成深度报告</button>
     </div>
+</div>
 
-    <div style="margin-top: 15px; display: none;" id="share-action">
-        <button style="width: 100%; padding: 12px; background: #fff; color: #2c3e50; border: 2px solid #2c3e50; border-radius: 10px; cursor: pointer; font-weight: bold;" onclick="generatePoster()">📸 保存深度分析海报</button>
+<div id="result-page" class="page-wrapper">
+    <div class="result-container" id="poster">
+        <h2 id="res-nickname" style="text-align:center; font-weight:300;">探索者报告</h2>
+        <div class="ai-content" id="content"></div>
     </div>
+    <div style="display:flex; gap:15px; margin-top:20px; width:100%; max-width:600px;">
+        <button class="btn-submit" style="background:#fff; border:1px solid #ddd; flex:1;" onclick="location.reload()">重新探索</button>
+        <button class="btn-submit" style="flex:1;" onclick="download()">保存画像</button>
+    </div>
+</div>
+
+<div class="loader" id="loader">
+    <div class="pulse"></div>
+    <p style="margin-top:20px; color:#57606f; letter-spacing:1px; font-size:13px;">
+        正在计算天体弧度并校对荣格功能偏好...
+    </p>
 </div>
 
 <script>
     let currentMode = 'simple';
-    const WORKER_URL = "https://mbti-api.jackwilsonbuddy.workers.dev"; // 替换为你的 Worker 地址
+    const API_URL = "https://astro-worker.jackwilsonbuddy.workers.dev";
 
-    function switchMode(mode) {
-        currentMode = mode;
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById(mode + '-section').classList.add('active');
+    const EN_TO_CN = {
+        Aries:'白羊座', Taurus:'金牛座', Gemini:'双子座', Cancer:'巨蟹座',
+        Leo:'狮子座', Virgo:'处女座', Libra:'天秤座', Scorpio:'天蝎座',
+        Sagittarius:'射手座', Capricorn:'摩羯座', Aquarius:'水瓶座', Pisces:'双鱼座',
+        sun:'太阳', moon:'月亮', mercury:'水星', venus:'金星', mars:'火星',
+        jupiter:'木星', saturn:'土星', uranus:'天王星', neptune:'海王星', pluto:'冥王星'
+    };
+
+    function switchMode(m) {
+        currentMode = m;
+
+        document.querySelectorAll('.tab')
+            .forEach(t => t.classList.remove('active'));
+
+        const tabs = document.querySelectorAll('.tab');
+        if (m === 'simple') tabs[0].classList.add('active');
+        else tabs[1].classList.add('active');
+
+        document.querySelectorAll('.form-section')
+            .forEach(f => f.classList.remove('active'));
+
+        document.getElementById(m + '-form').classList.add('active');
     }
 
-    async function startAnalysis() {
-        const nickname = document.getElementById('nickname').value || '匿名探索者';
-        let payload = { mode: currentMode, nickname };
+    window.switchMode = switchMode;
 
+    window.run = async () => {
+        const nickname = document.getElementById('nickname').value || '探索者';
+        const mbti = document.getElementById('mbti').value;
+
+        document.getElementById('loader').style.display = 'flex';
+
+        let payload = {
+            nickname,
+            mbti,
+            mode: currentMode
+        };
+
+        // =========================
+        // 1. 简单模式
+        // =========================
         if (currentMode === 'simple') {
-            payload.mbti = document.getElementById('mbti').value;
+            payload.birthType = "simple";
             payload.zodiac = document.getElementById('zodiac').value;
-        } else {
-            payload.birthDate = document.getElementById('birth-date').value;
-            payload.birthTime = document.getElementById('birth-time').value;
-            payload.birthPlace = document.getElementById('birth-place').value;
-            if (!payload.birthDate || !payload.birthPlace) {
-                alert('请填写完整的出生数据'); return;
-            }
         }
 
-        document.querySelector('.btn-main').style.display = 'none';
-        document.getElementById('loading').style.display = 'block';
+        // =========================
+        // 2. 精确模式（关键：只收集数据）
+        // =========================
+        if (currentMode === 'precision') {
+
+            const birthDate = document.getElementById('birth-date').value;
+            const birthTime = document.getElementById('birth-time').value || '12:00';
+            const place = document.getElementById('birth-place').value;
+
+            if (!birthDate || !place) {
+                alert('请填写出生日期和出生地点');
+                document.getElementById('loader').style.display = 'none';
+                return;
+            }
+
+            payload.birthType = "precision";
+            payload.birthDate = birthDate;
+            payload.birthTime = birthTime;
+            payload.place = place;
+        }
 
         try {
-            const response = await fetch(WORKER_URL, {
+
+            // =========================
+            // 3. 发给 Worker（星盘计算全部在后端）
+            // =========================
+            const r = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            const data = await response.json();
 
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('result-box').style.display = 'block';
-            document.getElementById('res-nickname').innerText = nickname;
-            document.getElementById('share-action').style.display = 'block';
+            const res = await r.json();
+            if (res.error) throw new Error(res.error);
 
-            typeWriter(data.result, 'ai-content', 15);
+            // =========================
+            // 4. 渲染结果
+            // =========================
+            document.getElementById('input-page').style.display = 'none';
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('result-page').style.display = 'flex';
+
+            setTimeout(() => {
+                document.getElementById('result-page').style.opacity = '1';
+                document.getElementById('res-nickname').innerText =
+                    nickname + ' 的觉察报告';
+
+                // Worker 返回 Markdown
+                document.getElementById('content').innerHTML =
+                    mdToHtml(res.result);
+
+            }, 50);
+
         } catch (e) {
-            alert('解析失败，请检查网络。');
-            location.reload();
+            console.error(e);
+            alert(`生成失败：${e.message}`);
+            document.getElementById('loader').style.display = 'none';
         }
-    }
+    };
 
-    function typeWriter(text, elementId, speed) {
-        let i = 0;
-        const el = document.getElementById(elementId);
-        el.innerHTML = "";
-        function type() {
-            if (i < text.length) {
-                el.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-                i++;
-                setTimeout(type, speed);
-            } else {
-                document.getElementById('watermark').style.display = 'block';
-            }
-        }
-        type();
-    }
+    /* =========================
+       下载
+       ========================= */
+    window.download = () => {
+        const poster = document.getElementById('poster');
 
-    function generatePoster() {
-        html2canvas(document.getElementById('capture-area'), { scale: 2, backgroundColor: "#fff" }).then(canvas => {
+        html2canvas(poster, {
+            scale: 2,
+            useCORS: true
+        }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `星盘解析_${new Date().getTime()}.jpg`;
-            link.href = canvas.toDataURL("image/jpeg", 0.9);
+            link.download =
+                `${document.getElementById('nickname').value || '探索者'}_报告.png`;
+
+            link.href = canvas.toDataURL("image/png");
             link.click();
         });
+    };
+
+    /* =========================
+       Markdown
+       ========================= */
+    function escapeHtml(str) {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
+    function parseInlineMarkdown(text) {
+        return text
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+?)`/g, '<code>$1</code>');
+    }
+
+    function mdToHtml(markdown) {
+        if (!markdown) return "";
+
+        const lines = escapeHtml(markdown).split("\n");
+        let html = "";
+        let inUl = false;
+        let inOl = false;
+
+        function closeLists() {
+            if (inUl) {
+                html += "</ul>";
+                inUl = false;
+            }
+            if (inOl) {
+                html += "</ol>";
+                inOl = false;
+            }
+        }
+
+        for (let rawLine of lines) {
+            const line = rawLine.trim();
+
+            // 空行
+            if (!line) {
+                closeLists();
+                continue;
+            }
+
+            // 标题
+            if (/^###\s+/.test(line)) {
+                closeLists();
+                html += `<h3>${parseInlineMarkdown(line.replace(/^###\s+/, ""))}</h3>`;
+                continue;
+            }
+            if (/^##\s+/.test(line)) {
+                closeLists();
+                html += `<h2>${parseInlineMarkdown(line.replace(/^##\s+/, ""))}</h2>`;
+                continue;
+            }
+            if (/^#\s+/.test(line)) {
+                closeLists();
+                html += `<h1>${parseInlineMarkdown(line.replace(/^#\s+/, ""))}</h1>`;
+                continue;
+            }
+
+            // 分隔线
+            if (/^---+$/.test(line) || /^\*\*\*+$/.test(line)) {
+                closeLists();
+                html += "<hr>";
+                continue;
+            }
+
+            // 无序列表
+            if (/^[-*]\s+/.test(line)) {
+                if (inOl) {
+                    html += "</ol>";
+                    inOl = false;
+                }
+                if (!inUl) {
+                    html += "<ul>";
+                    inUl = true;
+                }
+                html += `<li>${parseInlineMarkdown(line.replace(/^[-*]\s+/, ""))}</li>`;
+                continue;
+            }
+
+            // 有序列表
+            if (/^\d+\.\s+/.test(line)) {
+                if (inUl) {
+                    html += "</ul>";
+                    inUl = false;
+                }
+                if (!inOl) {
+                    html += "<ol>";
+                    inOl = true;
+                }
+                html += `<li>${parseInlineMarkdown(line.replace(/^\d+\.\s+/, ""))}</li>`;
+                continue;
+            }
+
+            // 普通段落
+            closeLists();
+            html += `<p>${parseInlineMarkdown(line)}</p>`;
+        }
+
+        closeLists();
+        return html;
     }
 </script>
 </body>
