@@ -160,8 +160,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 35px;
-            height: 35px;
+            min-height: 42px;
+            height: 42px;
             padding: 8px;
             text-align: center;
             border-radius: 16px;
@@ -196,6 +196,7 @@
 
         .actions {
             display: flex;
+            justify-content: center;
             gap: 12px;
             flex-wrap: wrap;
             margin-top: 8px;
@@ -417,7 +418,8 @@
         textarea {
             width: 100%;
             min-height: 108px;
-            resize: vertical;
+            resize: none;
+            overflow: hidden;
             border: 1px solid rgba(148, 163, 184, 0.16);
             outline: none;
             border-radius: 16px;
@@ -426,6 +428,7 @@
             line-height: 1.7;
             color: var(--text);
             background: rgba(255, 255, 255, 0.9);
+            white-space: pre-wrap;
         }
 
         footer {
@@ -500,14 +503,14 @@
     <section class="hero">
         <h1>职场动物进化测试</h1>
         <p class="subtitle">
-            不是那种一本正经的职业性格题，而是更接近日常打工体验的版本。
+            不是那种一本正经的职业性格题，而是更接近日常打工体验的版本。<br />
             测完你会拿到：你的职场动物、牛马指数、舒适度等级，以及一句比较像人话的点评。
         </p>
         <div class="hero-meta">
             <span class="chip">🐾 21 题</span>
             <span class="chip">🌿 含舒适度等级</span>
             <span class="chip">✨ 有隐藏款</span>
-            <span class="chip">😂 仅供娱乐但挺真实</span>
+            <span class="chip">🫠 没有天选的打工人，只有不反抗的社畜</span>
         </div>
     </section>
 
@@ -562,7 +565,8 @@
         {
             key: 'obedience',
             title: '① 服从度',
-            desc: '不是同不同意，而是你会不会先配合。',
+            desc: '有时候不是答应了，只是懒得再拉扯。',
+            note: '这一组通常会测出“先做了再说”的习惯。',
             questions: [
                 '有些任务我其实觉得不合理，但还是会先做了再说。',
                 '别人说“那这个你来吧”，我很少第一时间拒绝。',
@@ -572,9 +576,10 @@
         {
             key: 'overthinking',
             title: '② 内耗度',
-            desc: '有些疲惫，不一定发生在工位上。',
+            desc: '有些疲惫，不发生在身体上。',
+            note: '如果你在这组犹豫很久，通常就已经有点像了。',
             questions: [
-                '下班之后，脑子还在 replay 今天的对话。',
+                '下班之后，脑子还在重放今天的对话。',
                 '有时候一句普通的话，我会反复想它有没有别的意思。',
                 '明明已经结束的事情，还会在脑子里“再来一遍”。'
             ]
@@ -582,7 +587,8 @@
         {
             key: 'blame',
             title: '③ 背锅体质',
-            desc: '有些责任，好像会自动贴到你身上。',
+            desc: '有些责任，会自动贴到某些人身上。',
+            note: '这一组不一定代表你能力差，很多时候恰恰相反。',
             questions: [
                 '有些事情，好像自然就变成我在负责。',
                 '明明不是我的问题，但最后需要我来收尾。',
@@ -592,7 +598,8 @@
         {
             key: 'masking',
             title: '④ 社交表演',
-            desc: '你有没有一个“上班用人格”？',
+            desc: '你有没有一个只在公司上线的人格？',
+            note: '能切模式不一定是坏事，只是有时候挺费电。',
             questions: [
                 '有时候我会切换成“上班用人格”。',
                 '即使没什么好说的，也会说点什么让气氛不太尴尬。',
@@ -602,7 +609,8 @@
         {
             key: 'energy',
             title: '⑤ 精力状态',
-            desc: '有些累，不是身体，是那种说不太清的。',
+            desc: '有些累，是“先别和我说话”的那种。',
+            note: '这组很少有人能完全无感。',
             questions: [
                 '有时候下班之后，只想安静待着。',
                 '周末如果没有安排，我更倾向于恢复而不是社交。',
@@ -613,6 +621,7 @@
             key: 'selfRetain',
             title: '⑥ 自我保留',
             desc: '你还剩多少“自己”的部分？',
+            note: '不是反骨，而是你有没有把自己整个交出去。',
             questions: [
                 '有些事情，我还是会坚持自己的想法。',
                 '即使环境这样，我也不会完全变成那样的人。',
@@ -623,6 +632,7 @@
             key: 'comfort',
             title: '⑦ 舒适度',
             desc: '不是爽不爽，而是还能不能待下去。',
+            note: '能选到高分的人，多少有点本事。',
             questions: [
                 '我大致知道自己每天在做什么，也不算完全被动。',
                 '虽然有不爽的地方，但整体还能接受。',
@@ -632,11 +642,11 @@
     ];
 
     const labels = [
-        { value: 1, text: '完全不像' },
-        { value: 2, text: '不太像' },
+        { value: 1, text: '完全不符合' },
+        { value: 2, text: '比较不符合' },
         { value: 3, text: '一般' },
-        { value: 4, text: '比较像' },
-        { value: 5, text: '非常像我' }
+        { value: 4, text: '比较符合' },
+        { value: 5, text: '完全符合' }
     ];
 
     const form = document.getElementById('testForm');
@@ -652,6 +662,11 @@
     const resultBadge = document.getElementById('resultBadge');
     const shareText = document.getElementById('shareText');
 
+    function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
+    }
+
     function buildForm() {
         let qIndex = 1;
 
@@ -659,9 +674,10 @@
             const sectionEl = document.createElement('section');
             sectionEl.className = 'card';
             sectionEl.innerHTML = `
-          <h2 class="section-title">${section.title}</h2>
-          <p class="section-desc">${section.desc}</p>
-        `;
+                <h2 class="section-title">${section.title}</h2>
+                <p class="section-desc">${section.desc}</p>
+                <p class="section-desc" style="margin-top:-6px; font-size:12px; opacity:.88;">${section.note}</p>
+            `;
 
             section.questions.forEach((q) => {
                 const qName = `q${qIndex}`;
@@ -669,16 +685,16 @@
                 qEl.className = 'question';
 
                 const optionsHtml = labels.map((label) => `
-            <div class="option">
-              <input type="radio" id="${qName}_${label.value}" name="${qName}" value="${label.value}">
-              <label for="${qName}_${label.value}">${label.text}</label>
-            </div>
-          `).join('');
+                    <div class="option">
+                        <input type="radio" id="${qName}_${label.value}" name="${qName}" value="${label.value}">
+                        <label for="${qName}_${label.value}">${label.text}</label>
+                    </div>
+                `).join('\n');
 
                 qEl.innerHTML = `
-            <div class="question-title">${qIndex}. ${q}</div>
-            <div class="options">${optionsHtml}</div>
-          `;
+                    <div class="question-title">${qIndex}. ${q}</div>
+                    <div class="options">${optionsHtml}</div>
+                `;
 
                 sectionEl.appendChild(qEl);
                 qIndex += 1;
@@ -700,10 +716,6 @@
 
     function sum(arr) {
         return arr.reduce((a, b) => a + b, 0);
-    }
-
-    function clamp(value, min, max) {
-        return Math.max(min, Math.min(max, value));
     }
 
     function comfortLevel(score) {
@@ -734,8 +746,6 @@
         const comfortPercent = Math.round((comfort / 15) * 100);
         const selfPercent = Math.round((selfRetain / 15) * 100);
         const overthinkingPercent = Math.round((overthinking / 15) * 100);
-        const obediencePercent = Math.round((obedience / 15) * 100);
-        const fatiguePercent = Math.round((energy / 15) * 100);
 
         return {
             obedience,
@@ -749,8 +759,6 @@
             comfortPercent,
             selfPercent,
             overthinkingPercent,
-            obediencePercent,
-            fatiguePercent,
             comfortText: comfortLevel(comfort),
             obedienceType: scoreToLabel(obedience, '不好安排', '看情况配合', '很容易先配合'),
             overthinkingType: scoreToLabel(overthinking, '比较放得下', '偶尔内耗', '脑内后台常驻'),
@@ -758,17 +766,43 @@
         };
     }
 
+    function sample(list) {
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
     function pickAnimal(result) {
         const { cowPercent, comfort, selfRetain, obedience, overthinking, blame, masking, energy } = result;
 
-        const hiddenAllMid = [obedience, overthinking, blame, masking, energy, selfRetain, comfort].every((n) => n >= 7 && n <= 11);
+        const hiddenAllMid = [obedience, overthinking, blame, masking, energy, selfRetain, comfort]
+            .every((n) => n >= 7 && n <= 11);
+
+        // ===== 隐藏款 =====
         if (cowPercent >= 90 && selfRetain <= 5) {
             return {
                 emoji: '🧟',
                 name: '工具人',
                 tag: '隐藏款 · 自动执行型',
-                summary: '你已经进入“有事直接派给我”的状态，很多事情甚至不需要你先同意。',
-                quote: '你不是在上班，你是在被系统调用。'
+                summary: sample([
+                    '你已经进入“有事直接派给我”的状态，很多事情甚至不需要你先同意。',
+                    '你身上那种“默认会接住”的感觉太强了，所以事情会自动往你这里流。',
+                    '你不是不会拒绝，你只是经常在还没反应过来之前就已经开始做了。'
+                ]),
+                quote: sample([
+                    '你不是在上班，你是在被系统调用。',
+                    '很多事情已经绕过你的感受，直接进入执行阶段。',
+                    '你不是待机中，你是常驻后台。'
+                ]),
+                labels: ['高服从', '低自我保留', '自动接单'],
+                others: sample([
+                    '交给你应该不会出事。',
+                    '你好像总能兜住最后那一下。',
+                    '你会接，所以他们就真的发给你了。'
+                ]),
+                advice: sample([
+                    '先别急着答应，多停两秒也没事。',
+                    '不是每件事都值得你亲自收尾。',
+                    '把“我看一下”练成口头禅，会救你很多次。'
+                ])
             };
         }
 
@@ -777,8 +811,27 @@
                 emoji: '👑',
                 name: '打工皇帝',
                 tag: '隐藏款 · 掌控局面型',
-                summary: '你工作强度不低，但你并没有被工作吞掉，反而有一种“这局我能控”的感觉。',
-                quote: '你不是被工作推着走，你是在安排工作怎么走。'
+                summary: sample([
+                    '你工作强度不低，但你并没有被工作吞掉，反而有一种“这局我能控”的感觉。',
+                    '你不是轻松，只是你对节奏、边界和推进感还有掌控。',
+                    '你很忙，但那种忙没有把你压扁，反而像是在推着局面走。'
+                ]),
+                quote: sample([
+                    '你不是被工作推着走，你是在安排工作怎么走。',
+                    '同样是忙，你忙得比较像主角。',
+                    '别人是上班，你是带着系统运转。'
+                ]),
+                labels: ['高掌控感', '高输出', '不容易乱'],
+                others: sample([
+                    '你好像一直都知道下一步。',
+                    '你忙，但不狼狈。',
+                    '你像那种能边做边稳住场面的人。'
+                ]),
+                advice: sample([
+                    '继续忙可以，但别把“我能扛”变成默认设置。',
+                    '有掌控感很好，也记得给自己留白。',
+                    '不是每一次都要亲自推进到底。'
+                ])
             };
         }
 
@@ -787,8 +840,27 @@
                 emoji: '🌿',
                 name: '半退休人类',
                 tag: '隐藏款 · 松弛运行型',
-                summary: '你似乎已经学会在系统里保持松弛，工作归工作，生活归生活。',
-                quote: '你还在上班，但灵魂已经先下班了。'
+                summary: sample([
+                    '你似乎已经学会在系统里保持松弛，工作归工作，生活归生活。',
+                    '你还在上班，但没有让上班占领整个脑子。',
+                    '你对工作的距离感拿捏得不错，不远不近，正好够活。'
+                ]),
+                quote: sample([
+                    '你还在上班，但灵魂已经先下班了。',
+                    '你不是不工作，你是不让工作越界。',
+                    '你会做事，但不会把自己一起上交。'
+                ]),
+                labels: ['低内耗', '高舒适', '边界感强'],
+                others: sample([
+                    '你好像总能按时撤离。',
+                    '你看起来没有很拼，但状态不错。',
+                    '你像是知道什么时候该关机。'
+                ]),
+                advice: sample([
+                    '保持住，这种状态其实很难得。',
+                    '你已经找到节奏了，别被别人的焦虑带跑。',
+                    '继续把工作当工作，而不是身份。'
+                ])
             };
         }
 
@@ -797,68 +869,260 @@
                 emoji: '🌀',
                 name: '不可分类体',
                 tag: '隐藏款 · 系统识别失败',
-                summary: '你既不是典型社畜，也不是明显反骨，像一个总能恰好卡在中间值的神秘变量。',
-                quote: '系统试图理解你，但最终决定先放过自己。'
+                summary: sample([
+                    '你既不是典型社畜，也不是明显反骨，像一个总能恰好卡在中间值的神秘变量。',
+                    '你看起来什么都沾一点，但又很难被一句话定义。',
+                    '系统本来想给你分类，最后发现你比较像例外。'
+                ]),
+                quote: sample([
+                    '系统试图理解你，但最终决定先放过自己。',
+                    '你不是没有特点，你是特点刚好互相抵消。',
+                    '你像一张很难被归档的表。'
+                ]),
+                labels: ['中间地带', '不好定义', '变量型'],
+                others: sample([
+                    '你不太像标准模板。',
+                    '你好像哪边都能沾一点。',
+                    '说你卷也不完全，说你摆也不完全。'
+                ]),
+                advice: sample([
+                    '别急着把自己塞进某种标签里。',
+                    '你不必为了被理解而过度归类自己。',
+                    '模糊不一定是问题，有时候只是复杂。'
+                ])
             };
         }
 
-        if (cowPercent >= 78 && comfort <= 7) {
+        // ===== 先判最强特征 =====
+        if (cowPercent >= 76 && comfort <= 8) {
             return {
                 emoji: '🐄',
                 name: '老黄牛',
                 tag: '高负荷忍耐型',
-                summary: '你会扛、会做、也不太好意思甩手，但舒服这件事往往不在你的优先级里。',
-                quote: '你不是没意见，你只是常常来不及表达。'
+                summary: sample([
+                    '你会扛、会做、也不太好意思甩手，但舒服这件事往往不在你的优先级里。',
+                    '你不是不能说累，只是很多时候事情已经排在“感受”前面了。',
+                    '你身上那种“先把事情做完再说”的劲很强，但代价通常是你自己先被磨掉一点。'
+                ]),
+                quote: sample([
+                    '你不是没意见，你只是常常来不及表达。',
+                    '你会把活做完，但未必有人问你累不累。',
+                    '你太会扛了，所以别人默认你还能扛。'
+                ]),
+                labels: ['高承压', '不好拒绝', '先做再说'],
+                others: sample([
+                    '你很稳，事情给你比较放心。',
+                    '你好像总能再顶一下。',
+                    '你是那种不太会当场撂挑子的人。'
+                ]),
+                advice: sample([
+                    '先别总想着扛住，试着先确认是不是该你扛。',
+                    '“我这边排不过来”不是脾气，是边界。',
+                    '定时回家不需要像逃跑。'
+                ])
             };
         }
 
-        if (cowPercent >= 74 && comfort >= 11) {
+        if (overthinking >= 10 && comfort <= 10 && masking >= 8) {
             return {
-                emoji: '🐎',
-                name: '奔马',
-                tag: '高能输出型',
-                summary: '你挺忙，也挺能跑，但这种忙并不完全让你窒息，甚至有一点自己在推进什么的感觉。',
-                quote: '你很累，但你不是被拖着累。'
+                emoji: '🐧',
+                name: '企鹅',
+                tag: '表面正常运行型',
+                summary: sample([
+                    '你看起来挺稳，甚至还算配合，但这种稳定里多少有点营业成分。',
+                    '你外表像没什么事，内里其实一直在做情绪和气氛管理。',
+                    '你不是没感觉，只是大部分时候都能把感觉收住。'
+                ]),
+                quote: sample([
+                    '你看起来没问题，但其实有一点累。',
+                    '你在正常运行，只是偶尔想关机。',
+                    '你表面挺平静，后台其实开了不少程序。'
+                ]),
+                labels: ['表面稳', '轻度营业', '内里偏累'],
+                others: sample([
+                    '你好像一直都挺正常。',
+                    '你很少失控。',
+                    '你看起来挺能适应的。'
+                ]),
+                advice: sample([
+                    '你不必每次都把自己调整到“没问题”的状态。',
+                    '偶尔不用撑成一个稳定版本。',
+                    '你可以正常，也可以坦白说今天有点累。'
+                ])
             };
         }
 
-        if (obedience >= 12 && cowPercent >= 70) {
+        if (obedience >= 10 && blame >= 9 && cowPercent >= 58) {
             return {
                 emoji: '🐕',
                 name: '社畜犬',
                 tag: '忠诚配合型',
-                summary: '你很容易成为那个“交给你我放心”的人，问题是事情也会越交越多。',
-                quote: '你不是最好说话，只是不太习惯把话说硬。'
+                summary: sample([
+                    '你很容易成为那个“交给你我放心”的人，问题是事情也会越交越多。',
+                    '你配合度高，别人和你合作会很省力，但你自己不一定轻松。',
+                    '你不太爱让别人难做，所以很多时候就自己先接住了。'
+                ]),
+                quote: sample([
+                    '你不是最好说话，只是不太习惯把话说硬。',
+                    '你越好配合，越容易被默认还可以再配合一下。',
+                    '人家说“拜托了”，你心里已经在排时间。'
+                ]),
+                labels: ['高配合', '很难硬拒绝', '默认可靠'],
+                others: sample([
+                    '你应该会帮忙。',
+                    '找你说事，成功率比较高。',
+                    '你不像会当面说不的人。'
+                ]),
+                advice: sample([
+                    '把“我先确认一下”练熟，会很有用。',
+                    '不是所有拜托都要立刻接。',
+                    '你可以好相处，但不必无限可用。'
+                ])
             };
         }
 
-        if (blame >= 12 && comfort <= 9) {
-            return {
-                emoji: '🐘',
-                name: '背锅象',
-                tag: '责任过载型',
-                summary: '事情最后经常落到你头上，你像是那个默认会收尾的人。',
-                quote: '大家都觉得你能扛，于是事情就真的都来了。'
-            };
-        }
-
-        if (overthinking >= 12 && comfort <= 9) {
+        if (overthinking >= 11 && comfort <= 10) {
             return {
                 emoji: '🐸',
                 name: '内耗蛙',
                 tag: '脑内回放型',
-                summary: '你不一定是最累的那个，但你的精神后台很少真正关机。',
-                quote: '你不是被工作压垮的，你是被脑内回放磨掉的。'
+                summary: sample([
+                    '你不一定是最累的那个，但你的精神后台很少真正关机。',
+                    '别人一句话过去了，你脑子里还会自动开二周目。',
+                    '你真正累的地方，常常不在会议里，而在会议结束以后。'
+                ]),
+                quote: sample([
+                    '你不是被工作压垮的，你是被脑内回放磨掉的。',
+                    '事情结束了，你的后台还没结束。',
+                    '你看起来在休息，其实脑子还在加班。'
+                ]),
+                labels: ['高敏感', '反复回想', '脑内加班'],
+                others: sample([
+                    '你挺细的。',
+                    '你想事情会想得比较深。',
+                    '你好像总会多考虑一点。'
+                ]),
+                advice: sample([
+                    '不是每句普通话里都藏着第二层意思。',
+                    '你现在最需要的可能不是效率，是降噪。',
+                    '把“到此为止”当成一种练习。'
+                ])
             };
         }
 
-        if (energy >= 12 && cowPercent <= 60) {
+        if (blame >= 10 && comfort <= 10 && cowPercent >= 55) {
+            return {
+                emoji: '🐘',
+                name: '背锅象',
+                tag: '责任过载型',
+                summary: sample([
+                    '事情最后经常落到你头上，你像是那个默认会收尾的人。',
+                    '你可能不是最早出场的，但经常是最后一个还在现场的人。',
+                    '你有点像那个团队里负责把散掉的东西重新捞起来的人。'
+                ]),
+                quote: sample([
+                    '大家都觉得你能扛，于是事情就真的都来了。',
+                    '不是你爱背，是事情最后总往你这边滚。',
+                    '你最常收到的，大概不是任务，是残局。'
+                ]),
+                labels: ['高责任感', '收尾型', '容易接残局'],
+                others: sample([
+                    '最后找你总能补上。',
+                    '你像那个会负责到底的人。',
+                    '你比较能兜底。'
+                ]),
+                advice: sample([
+                    '先分清楚“能做”跟“该做”不是一回事。',
+                    '不是所有残局都必须由你收。',
+                    '学会把责任还回去，不代表你不负责。'
+                ])
+            };
+        }
+
+        if (masking >= 10 && comfort >= 8 && overthinking <= 10) {
+            return {
+                emoji: '🦊',
+                name: '狐狸',
+                tag: '社交拿捏型',
+                summary: sample([
+                    '你很懂场面，也知道什么时候该说什么，很多事情被你处理得看起来很自然。',
+                    '你对气氛、顺序和人际温度很敏感，所以很少把局面弄得太难看。',
+                    '你不是圆滑过头，而是很会让很多事顺着发生。'
+                ]),
+                quote: sample([
+                    '你不是没情绪，你只是很会包装情绪。',
+                    '你很会做人，但这也是一种工作量。',
+                    '你处理的不只是事情，还有空气。'
+                ]),
+                labels: ['会读空气', '会做人', '场面感强'],
+                others: sample([
+                    '你挺会接话的。',
+                    '你让场面变顺很多。',
+                    '你属于比较懂事的那类人。'
+                ]),
+                advice: sample([
+                    '你很会顾全大局，也别总忘了顾自己。',
+                    '有时候不用把每一段沉默都填满。',
+                    '会读空气很厉害，但别一直替所有人维持温度。'
+                ])
+            };
+        }
+
+        if (cowPercent >= 72 && comfort >= 10) {
+            return {
+                emoji: '🐎',
+                name: '奔马',
+                tag: '高能输出型',
+                summary: sample([
+                    '你挺忙，也挺能跑，但这种忙并不完全让你窒息，甚至有一点自己在推进什么的感觉。',
+                    '你不是没有负荷，只是你的状态更像“在冲”而不是“被拖”。',
+                    '你事情不少，但好在还有速度感和方向感。'
+                ]),
+                quote: sample([
+                    '你很累，但你不是被拖着累。',
+                    '你是在跑，不是在被赶。',
+                    '同样是忙，你更像主动推进的一类。'
+                ]),
+                labels: ['高输出', '有目标感', '推进型'],
+                others: sample([
+                    '你好像一直在赶路，但状态还行。',
+                    '你不是最轻松的，但很能打。',
+                    '你忙得挺像回事。'
+                ]),
+                advice: sample([
+                    '别因为自己状态好，就默认一直能这么跑。',
+                    '推进很爽，也记得留一点缓冲。',
+                    '别把“我能做”自动翻译成“都给我吧”。'
+                ])
+            };
+        }
+
+        if (energy >= 11 && cowPercent <= 62) {
             return {
                 emoji: '🦥',
                 name: '树懒',
                 tag: '低电量生存型',
-                summary: '你不一定在摆，但电量确实不太够，很多时候你只是在努力别让自己彻底掉线。',
-                quote: '你不是懒，你只是长时间低电量。'
+                summary: sample([
+                    '你不一定在摆，但电量确实不太够，很多时候你只是在努力别让自己彻底掉线。',
+                    '你不是没有责任感，只是持续低电量让很多事情都得慢一点。',
+                    '你看起来安静，很多时候其实是在省电。'
+                ]),
+                quote: sample([
+                    '你不是懒，你只是长时间低电量。',
+                    '你现在最像手机的 12% 电量模式。',
+                    '你不是不想动，是系统提示先充电。'
+                ]),
+                labels: ['低电量', '恢复优先', '慢启动'],
+                others: sample([
+                    '你最近有点安静。',
+                    '你像是需要缓一缓。',
+                    '你不是没在做，只是节奏变慢了。'
+                ]),
+                advice: sample([
+                    '你需要的未必是逼自己动起来，可能是先回电。',
+                    '别把休息当成不努力。',
+                    '低电量时少做无效社交，会舒服很多。'
+                ])
             };
         }
 
@@ -867,8 +1131,27 @@
                 emoji: '🐱',
                 name: '摸鱼猫',
                 tag: '自我保护型',
-                summary: '你很懂得保留自己的空间，不会让工作轻易吞掉整个人。',
-                quote: '你在工作，但也没忘记自己还要活。'
+                summary: sample([
+                    '你很懂得保留自己的空间，不会让工作轻易吞掉整个人。',
+                    '你不是不做事，而是很会分辨什么值得认真做，什么不必跟着一起慌。',
+                    '你对“无效消耗”警觉度很高，所以状态通常还不错。'
+                ]),
+                quote: sample([
+                    '你在工作，但也没忘记自己还要活。',
+                    '你不是摆，你是很会保存体力。',
+                    '你不是不合群，你只是没打算陪着一起内耗。'
+                ]),
+                labels: ['高边界感', '会保存体力', '低卷入'],
+                others: sample([
+                    '你很会拿捏分寸。',
+                    '你状态看着比大家稳定。',
+                    '你好像没那么容易被带跑。'
+                ]),
+                advice: sample([
+                    '这种状态挺珍贵，别被“大家都很忙”吓到。',
+                    '继续保留你的节奏感。',
+                    '你已经很会活了，别突然被 guilt 拖下水。'
+                ])
             };
         }
 
@@ -877,8 +1160,27 @@
                 emoji: '🐼',
                 name: '摆烂熊',
                 tag: '低推进低愉悦型',
-                summary: '你不太想卷，但也没有因此特别快乐，像是一种安静但略带疲惫的停摆。',
-                quote: '你不努力，不代表你轻松。'
+                summary: sample([
+                    '你不太想卷，但也没有因此特别快乐，像是一种安静但略带疲惫的停摆。',
+                    '你看起来像在躺，其实也没有真的躺舒服。',
+                    '你不是很想投入，但也没彻底抽离，所以有点卡在中间。'
+                ]),
+                quote: sample([
+                    '你不努力，不代表你轻松。',
+                    '你现在的状态，比较像“算了先这样”。',
+                    '你没有很想冲，但也没有真正放过自己。'
+                ]),
+                labels: ['低推进', '有点疲', '停滞感'],
+                others: sample([
+                    '你不是很想争。',
+                    '你好像最近提不起劲。',
+                    '你像在安静地后退半步。'
+                ]),
+                advice: sample([
+                    '你可能不是需要鸡血，而是先找回一点真实兴趣。',
+                    '停一下可以，但别一直停在不舒服的位置。',
+                    '与其逼自己冲，不如先弄清楚你到底在躲什么。'
+                ])
             };
         }
 
@@ -887,37 +1189,92 @@
                 emoji: '🐺',
                 name: '独狼',
                 tag: '低服从清醒型',
-                summary: '你不太喜欢被随便安排，也很难彻底把自己磨成标准件。',
-                quote: '你是在打工，不是在交出使用权。'
+                summary: sample([
+                    '你不太喜欢被随便安排，也很难彻底把自己磨成标准件。',
+                    '你对自己的边界和判断比较有数，不太会因为气氛就立刻跟上。',
+                    '你不是故意难搞，只是会先确认这事到底合不合理。'
+                ]),
+                quote: sample([
+                    '你是在打工，不是在交出使用权。',
+                    '你不是不配合，你只是需要说得通。',
+                    '你不太吃“大家都这样”的那一套。'
+                ]),
+                labels: ['边界清晰', '低服从', '清醒型'],
+                others: sample([
+                    '你不是特别好摆布。',
+                    '你有自己的判断。',
+                    '你不太会因为场面就点头。'
+                ]),
+                advice: sample([
+                    '你的清醒是优点，也记得偶尔把锋利收一下。',
+                    '不是每一次都要解释到别人完全明白。',
+                    '保持判断力，同时留一点合作余地。'
+                ])
             };
         }
 
-        if (masking >= 12 && comfort >= 9) {
+        // ===== 仓鼠不再做万能兜底，而是明确代表“中间稳定循环型” =====
+        if (
+            cowPercent >= 42 && cowPercent <= 68 &&
+            comfort >= 8 && comfort <= 11 &&
+            obedience >= 7 && obedience <= 11 &&
+            overthinking <= 10 &&
+            selfRetain >= 7 && selfRetain <= 11
+        ) {
             return {
-                emoji: '🦊',
-                name: '狐狸',
-                tag: '社交拿捏型',
-                summary: '你很懂场面，也知道什么时候该说什么，很多事情被你处理得看起来很自然。',
-                quote: '你不是没情绪，你只是很会包装情绪。'
+                emoji: '🐹',
+                name: '仓鼠',
+                tag: '循环运转型',
+                summary: sample([
+                    '你每天都在转轮子，不一定特别难受，但也谈不上多有突破感。',
+                    '你的状态像一种稳定循环：能跑、会跑，但轨迹基本固定。',
+                    '你不是很惨，也不是很爽，就是在一套重复节奏里持续运转。'
+                ]),
+                quote: sample([
+                    '你有在前进，只是轨迹看起来像一个圆。',
+                    '你不是停住了，你是在原地高质量运转。',
+                    '你的日常像复制粘贴，但你已经很熟练了。'
+                ]),
+                labels: ['重复节奏', '稳定运转', '不太出圈'],
+                others: sample([
+                    '你挺稳定的。',
+                    '你属于流程很熟的人。',
+                    '你像那种每天都能正常转起来的人。'
+                ]),
+                advice: sample([
+                    '如果你开始觉得无聊，可能不是你有问题，是循环太久了。',
+                    '试着给日常挪出一点变化。',
+                    '稳定很好，但也可以留一个出口给自己。'
+                ])
             };
         }
 
-        if (masking >= 12 && overthinking >= 10) {
-            return {
-                emoji: '🐧',
-                name: '企鹅',
-                tag: '表面正常运行型',
-                summary: '你看起来挺稳，甚至还算配合，但这种稳定里多少有点营业成分。',
-                quote: '你看起来没问题，但其实有一点累。'
-            };
-        }
-
+        // ===== 真正的最后兜底 =====
         return {
-            emoji: '🐹',
-            name: '仓鼠',
-            tag: '循环运转型',
-            summary: '你每天都在转轮子，不一定特别难受，但也谈不上多有突破感。',
-            quote: '你有在前进，只是轨迹看起来像一个圆。'
+            emoji: '📎',
+            name: '普通打工人',
+            tag: '默认款 · 还在运行中',
+            summary: sample([
+                '你不是特别极端的哪一类，更像是大多数正在努力维持平衡的人。',
+                '你身上有几种倾向同时存在，所以最后呈现出来的是一种比较真实的混合态。',
+                '你不是没有特点，只是你的状态更接近日常职场里的常见样子。'
+            ]),
+            quote: sample([
+                '你不是样本外，你只是很像现实里的大多数人。',
+                '没有特别戏剧化，但每天都是真实在过。',
+                '你不是某一种极端，你是很多小状态的混合体。'
+            ]),
+            labels: ['混合型', '现实流', '还在运行'],
+            others: sample([
+                '你看起来就是很普通地在上班。',
+                '你好像没有特别夸张，但也不轻松。',
+                '你属于那种很真实的日常打工状态。'
+            ]),
+            advice: sample([
+                '不用急着把自己归进某个极端标签里。',
+                '先照顾节奏，比急着定义自己更重要。',
+                '你现在最需要的可能不是答案，而是少一点消耗。'
+            ])
         };
     }
 
@@ -956,15 +1313,15 @@
         ];
 
         metricsGrid.innerHTML = items.map((item) => `
-        <div class="metric">
-          <div class="metric-name">${item.name}</div>
-          <div class="metric-value">${item.value}</div>
-          <div class="bar"><div class="fill" style="width:${item.percent}%"></div></div>
-        </div>
-      `).join('');
+            <div class="metric">
+                <div class="metric-name">${item.name}</div>
+                <div class="metric-value">${item.value}</div>
+                <div class="bar"><div class="fill" style="width:${item.percent}%"></div></div>
+            </div>
+        `).join('\n');
     }
 
-    function renderTypes(result) {
+    function renderTypes(result, animal) {
         const cards = [
             {
                 title: '你的职场状态',
@@ -973,6 +1330,18 @@
                     : result.cowPercent <= 40
                         ? '你和工作之间还留有一些距离，不算完全被卷进去。'
                         : '你处在一个中间区间，既在推进，也还没完全失去回旋空间。'
+            },
+            {
+                title: '别人眼里的你',
+                text: animal.others
+            },
+            {
+                title: '现在更适合你的做法',
+                text: animal.advice
+            },
+            {
+                title: '你的三个关键词',
+                text: animal.labels.join(' · ')
             },
             {
                 title: '你的主观感受',
@@ -993,22 +1362,27 @@
         ];
 
         typeGrid.innerHTML = cards.map((card) => `
-        <div class="type-card">
-          <h3>${card.title}</h3>
-          <p>${card.text}</p>
-        </div>
-      `).join('');
+            <div class="type-card">
+                <h3>${card.title}</h3>
+                <p>${card.text}</p>
+            </div>
+        `).join('\n');
     }
 
     function buildShareText(animal, result) {
         return [
-            `我测出来的职场动物是：${animal.emoji} ${animal.name}（${animal.tag}）`,
+            `🐾 职场动物：${animal.emoji} ${animal.name}`,
+            `标签：${animal.tag}`,
             `牛马指数：${result.cowPercent}%`,
             `舒适度：${result.comfort}/15（${result.comfortText}）`,
+            `关键词：${animal.labels.join(' / ')}`,
+            '',
             `一句话：${animal.quote}`,
+            `别人看我：${animal.others}`,
+            `更适合我的做法：${animal.advice}`,
             '',
             '—— 来测测你的职场动物吧 😂'
-        ].join('');
+        ].join('\n');
     }
 
     function renderResult(result) {
@@ -1022,10 +1396,13 @@
         resultBadge.textContent = animal.tag.includes('隐藏款') ? '隐藏款已触发' : '测试完成';
 
         renderMetrics(result);
-        renderTypes(result);
+        renderTypes(result, animal);
         shareText.value = buildShareText(animal, result);
 
         resultCard.classList.add('show');
+
+        requestAnimationFrame(() => autoResizeTextarea(shareText));
+
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -1046,6 +1423,8 @@
         form.reset();
         warning.style.display = 'none';
         resultCard.classList.remove('show');
+        shareText.value = '';
+        shareText.style.height = 'auto';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
